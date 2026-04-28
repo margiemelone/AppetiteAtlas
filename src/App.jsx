@@ -1,41 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, ReferenceLine, LabelList } from 'recharts';
+import founderPhoto from './founder.jpg';
 
 // =============================================================================
-// MERIDIAN — Unified App
+// APPETITE ATLAS — Unified App
 // =============================================================================
-// One file that contains both the marketing site and the eating-profile
-// assessment. Navigation between them is handled by a single `view` state
-// at the bottom of this file.
+// Marketing site + v3 assessment (TFEQ-R21 + RED-9 + Satisfaction module)
+// + post-results behavioral consultation CTA.
 //
 // STRUCTURE
-//   1. Constants     → palette, typography, instruments, phenotypes, scoring
-//   2. Hooks/styles  → font loading, global keyframes & print styles
-//   3. Shared        → Logo, Button, SectionHeader
-//   4. Marketing     → Nav, Hero, Gap, Approach, AssessmentSection, About, Waitlist, Footer
-//   5. Assessment    → Context, Questionnaire, Demographics, Computing, Results, ConsultationCTA
-//   6. Main App      → routing between site & assessment
+//   1. Brand & content constants (FOUNDER_NAME, etc.)
+//   2. Instruments (TFEQ-R21, RED-9, satisfaction module options)
+//   3. Scoring + phenotypes
+//   4. Hooks & global styles
+//   5. Shared (Logo, Button, SectionHeader, PrototypeBanner)
+//   6. Marketing site
+//   7. Assessment screens (Context → Satisfaction → TFEQ → RED → Demo → Results)
+//   8. Main App (routing between site & assessment)
 //
 // PLACEHOLDERS TO REPLACE BEFORE LAUNCH (search the file):
-//   • FOUNDER_NAME              — used throughout
-//   • FOUNDER_BIO               — about-page paragraphs
-//   • CONTACT_EMAIL             — used in waitlist + consultation request mailto
-//   • Final wording of disclaimer (footer + consultation CTA)
+//   • FOUNDER_NAME              — top of file
+//   • CONTACT_EMAIL             — top of file
+//   • FOUNDER_BIO               — about section
+//   • Photo                     — about section gradient placeholder
 //
-// LEGAL NOTES (from prior planning):
-//   • Founder is a PhD eating-behavior scientist, NOT licensed RDN/LDN.
-//   • The 1:1 offering is positioned as a *behavioral consultation* —
-//     educational, not nutrition counseling. Do not change this wording
-//     without re-running the legal analysis.
+// LEGAL NOTES (don't change without re-running analysis):
+//   • Founder is PhD eating-behavior scientist, NOT licensed RDN/LDN.
+//   • The 1:1 offering is a *behavioral consultation* — educational only.
+//   • "PROTOTYPE" banner stays on assessment screens because the validated
+//     instrument items shown are placeholder wording. Required academic honesty.
 // =============================================================================
 
 
 // =============================================================================
-// 1. CONSTANTS
+// 1. BRAND & CONTENT CONSTANTS
 // =============================================================================
 
-const FOUNDER_NAME = '[Your Name]';      // ← replace with real name
-const CONTACT_EMAIL = 'hello@meridian.example'; // ← replace with real email
+const BRAND_NAME = 'Appetite Atlas';
+const FOUNDER_NAME = 'Margaret Melone';
+const CONTACT_EMAIL = 'margie@appetiteatlas.health';
 
 const COLORS = {
   cream:      '#F5F1E8',
@@ -56,9 +59,14 @@ const FONT_SERIF = '"Instrument Serif", Georgia, serif';
 const FONT_SANS  = '"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif';
 const FONT_MONO  = '"IBM Plex Mono", ui-monospace, monospace';
 
-// -- Instruments ---------------------------------------------------------------
-// NOTE: TFEQ-R21 and PFS items below closely reflect published wording.
-// Final production items must use the officially licensed versions.
+
+// =============================================================================
+// 2. INSTRUMENTS
+// =============================================================================
+// NOTE: TFEQ-R21 and RED-9 items below are working prototype items closely
+// reflecting published wording. Final production items must use the officially
+// validated versions (Karlsson et al. 2000 / de Lauzon et al. 2004 for
+// TFEQ-R21; Mason, Epel et al. for RED-9).
 
 const TFEQ_ITEMS = [
   { id: 'cr1', text: 'I deliberately take small helpings as a means of controlling my weight.', scale: 'CR' },
@@ -68,11 +76,11 @@ const TFEQ_ITEMS = [
   { id: 'cr5', text: 'I am likely to consciously eat less than I want.', scale: 'CR' },
   { id: 'cr6', text: 'On a typical day, I pay close attention to what I eat.', scale: 'CR' },
 
-  { id: 'ue1', text: 'Sometimes when I start eating, I just can\u2019t seem to stop.', scale: 'UE' },
+  { id: 'ue1', text: 'Sometimes when I start eating, I just can’t seem to stop.', scale: 'UE' },
   { id: 'ue2', text: 'Being with someone who is eating often makes me hungry enough to eat too.', scale: 'UE' },
-  { id: 'ue3', text: 'When I smell a delicious food, I find it very difficult to keep from eating\u2014even if I just finished a meal.', scale: 'UE' },
+  { id: 'ue3', text: 'When I smell a delicious food, I find it very difficult to keep from eating—even if I just finished a meal.', scale: 'UE' },
   { id: 'ue4', text: 'I am always hungry enough to eat at any time.', scale: 'UE' },
-  { id: 'ue5', text: 'I\u2019m always hungry, so it\u2019s hard for me to stop eating before I finish everything on my plate.', scale: 'UE' },
+  { id: 'ue5', text: 'I’m always hungry, so it’s hard for me to stop eating before I finish everything on my plate.', scale: 'UE' },
   { id: 'ue6', text: 'When I see a real delicacy, I often get so hungry that I have to eat right away.', scale: 'UE' },
   { id: 'ue7', text: 'Sometimes I get so hungry that my stomach feels like a bottomless pit.', scale: 'UE' },
   { id: 'ue8', text: 'I often feel so hungry that I just have to eat something.', scale: 'UE' },
@@ -93,50 +101,81 @@ const TFEQ_OPTIONS = [
   { value: 4, label: 'Definitely true' },
 ];
 
-const PFS_ITEMS = [
-  { id: 'fa1', text: 'I find myself thinking about food even when I\u2019m not physically hungry.', scale: 'FA' },
-  { id: 'fa2', text: 'I get more pleasure from eating than I do from almost anything else.', scale: 'FA' },
-  { id: 'fa3', text: 'It\u2019s scary to think of the power that food has over me.', scale: 'FA' },
-  { id: 'fa4', text: 'I often find myself thinking about what foods I\u2019ll eat later.', scale: 'FA' },
-  { id: 'fa5', text: 'I love the taste of certain foods so much that I can\u2019t avoid eating them even if they\u2019re bad for me.', scale: 'FA' },
-  { id: 'fp1', text: 'When I\u2019m around fattening food I love, it\u2019s hard to stop myself from at least tasting it.', scale: 'FP' },
-  { id: 'fp2', text: 'If I see or smell a food I like, I get a powerful urge to have some.', scale: 'FP' },
-  { id: 'fp3', text: 'When I know a delicious food is available, I can\u2019t help thinking about having some.', scale: 'FP' },
-  { id: 'fp4', text: 'Seeing an appetizing meal on TV or in a magazine makes me want to eat.', scale: 'FP' },
-  { id: 'fp5', text: 'When delicious foods are right in front of me, it\u2019s very difficult to wait.', scale: 'FP' },
-  { id: 'ft1', text: 'When I eat delicious food, I focus a lot on how good it tastes.', scale: 'FT' },
-  { id: 'ft2', text: 'Just before I taste a favorite food, I feel intense anticipation.', scale: 'FT' },
-  { id: 'ft3', text: 'When I taste a favorite food, I feel intense pleasure.', scale: 'FT' },
-  { id: 'ft4', text: 'Before I eat a food I love, my mouth tends to flood with saliva.', scale: 'FT' },
-  { id: 'ft5', text: 'When I eat delicious food, the pleasure I feel is so strong it can be hard to control.', scale: 'FT' },
+const RED_ITEMS = [
+  { id: 'lc1', text: 'I have a hard time resisting eating delicious foods.', scale: 'LC' },
+  { id: 'lc2', text: 'When I start eating foods I love, I find it hard to stop.', scale: 'LC' },
+  { id: 'lc3', text: 'I sometimes feel that food controls me, rather than the other way around.', scale: 'LC' },
+
+  { id: 'ls1', text: 'Even when I’m full, I often keep eating if the food tastes good.', scale: 'LS' },
+  { id: 'ls2', text: 'I rarely feel completely satisfied after a meal.', scale: 'LS' },
+  { id: 'ls3', text: 'After finishing a meal, I often still want more.', scale: 'LS' },
+
+  { id: 'pr1', text: 'I think about food a lot of the time, even when I’m not hungry.', scale: 'PR' },
+  { id: 'pr2', text: 'My thoughts about food can feel intrusive or hard to ignore.', scale: 'PR' },
+  { id: 'pr3', text: 'I often plan what I’ll eat next, well before I’m hungry.', scale: 'PR' },
 ];
 
-const PFS_OPTIONS = [
-  { value: 1, label: 'Don\u2019t agree at all' },
-  { value: 2, label: 'Slightly agree' },
-  { value: 3, label: 'Moderately agree' },
-  { value: 4, label: 'Strongly agree' },
-  { value: 5, label: 'Agree very strongly' },
+const RED_OPTIONS = [
+  { value: 1, label: 'Strongly disagree' },
+  { value: 2, label: 'Disagree' },
+  { value: 3, label: 'Neither agree nor disagree' },
+  { value: 4, label: 'Agree' },
+  { value: 5, label: 'Strongly agree' },
 ];
 
 const GLP1_QUESTIONS = [
   { id: 'medication', q: 'Which medication are you currently taking?',
     options: ['Semaglutide (Ozempic)', 'Semaglutide (Wegovy)', 'Tirzepatide (Mounjaro)', 'Tirzepatide (Zepbound)', 'Liraglutide (Saxenda / Victoza)', 'Other GLP-1 / GIP agonist', 'Not currently taking one'] },
   { id: 'duration', q: 'How long have you been taking it?',
-    options: ['Less than 4 weeks', '1\u20133 months', '3\u20136 months', '6\u201312 months', 'More than 12 months', 'Not currently taking'] },
+    options: ['Less than 4 weeks', '1–3 months', '3–6 months', '6–12 months', 'More than 12 months', 'Not currently taking'] },
   { id: 'dose_phase', q: 'Where are you in your titration?',
     options: ['Starting dose', 'Mid-titration', 'At therapeutic dose', 'Maintenance', 'Tapering off', 'Not sure'] },
-  { id: 'reason', q: 'What\u2019s the primary reason you\u2019re taking it?',
+  { id: 'reason', q: 'What’s the primary reason you’re taking it?',
     options: ['Weight management', 'Type 2 diabetes', 'Both weight and diabetes', 'PCOS or metabolic health', 'Other'] },
-  { id: 'plateau', q: 'Have you hit a plateau in the last month?',
-    options: ['Yes, a clear plateau', 'Some slowing', 'No, still progressing', 'Not sure yet'] },
-  { id: 'considered_stopping', q: 'Have you considered stopping the medication?',
-    options: ['Yes, actively', 'Sometimes I think about it', 'Not really', 'I\u2019ve already stopped'] },
   { id: 'prior_attempts', q: 'Any prior attempts at GLP-1 therapy?',
     options: ['This is my first time', 'One prior attempt', 'Multiple prior attempts'] },
 ];
 
-// -- Scoring -------------------------------------------------------------------
+const SATISFACTION_SLIDERS = [
+  { id: 'sat_overall', label: 'Overall, how satisfied are you with your GLP-1 experience?' },
+  { id: 'sat_results', label: 'Satisfaction with your weight or health results so far' },
+  { id: 'sat_feel',    label: 'Satisfaction with how you feel physically on the medication' },
+  { id: 'sat_food',    label: 'Satisfaction with how it has affected your relationship with food' },
+];
+
+const PLATEAU_OPTIONS = [
+  'Yes, a clear plateau',
+  'Some slowing',
+  'No, still progressing',
+  'Not sure yet',
+];
+
+const TRAJECTORY_OPTIONS = [
+  'Significantly better',
+  'Somewhat better',
+  'About the same',
+  'Somewhat worse',
+  'Significantly worse',
+];
+
+const FRUSTRATION_OPTIONS = [
+  'Nausea or GI side effects',
+  'Cost or insurance hassles',
+  'Plateaus or slow progress',
+  'Fear of stopping the medication',
+  'Social situations and eating out',
+  'Fatigue or low energy',
+  'Muscle loss concerns',
+  'Food not feeling enjoyable anymore',
+  'Worry about long-term safety',
+  'Feeling judged for taking it',
+  'None of these — it’s been smooth',
+];
+
+
+// =============================================================================
+// 3. SCORING + PHENOTYPES
+// =============================================================================
 
 function transformTo100(raw, lowest, range) {
   return ((raw - lowest) / range) * 100;
@@ -154,32 +193,30 @@ function scoreTFEQ(answers) {
   };
 }
 
-function scorePFS(answers) {
-  const faItems = PFS_ITEMS.filter(i => i.scale === 'FA');
-  const fpItems = PFS_ITEMS.filter(i => i.scale === 'FP');
-  const ftItems = PFS_ITEMS.filter(i => i.scale === 'FT');
+function scoreRED(answers) {
+  const lcItems = RED_ITEMS.filter(i => i.scale === 'LC');
+  const lsItems = RED_ITEMS.filter(i => i.scale === 'LS');
+  const prItems = RED_ITEMS.filter(i => i.scale === 'PR');
   const mean = (items) => items.reduce((acc, it) => acc + (answers[it.id] || 0), 0) / items.length;
-  const FA = mean(faItems), FP = mean(fpItems), FT = mean(ftItems);
-  const AGG = (FA + FP + FT) / 3;
+  const LC = mean(lcItems), LS = mean(lsItems), PR = mean(prItems);
+  const AGG = (LC + LS + PR) / 3;
   const toPct = (v) => ((v - 1) / 4) * 100;
-  return { FA, FP, FT, AGG, FA_pct: toPct(FA), FP_pct: toPct(FP), FT_pct: toPct(FT), AGG_pct: toPct(AGG) };
+  return { LC, LS, PR, AGG, LC_pct: toPct(LC), LS_pct: toPct(LS), PR_pct: toPct(PR), AGG_pct: toPct(AGG) };
 }
 
-function determinePhenotype(tfeq, pfs) {
+function determinePhenotype(tfeq, red) {
   const elevated = {
     restraint:    tfeq.CR > 55,
-    uncontrolled: tfeq.UE > 55,
+    rewardDriven: tfeq.UE > 55 || red.AGG_pct > 50,
     emotional:    tfeq.EE > 45,
-    hedonic:      pfs.AGG_pct > 50,
   };
-  const driveCount = [elevated.uncontrolled, elevated.emotional, elevated.hedonic].filter(Boolean).length;
+  const driveCount = [elevated.rewardDriven, elevated.emotional].filter(Boolean).length;
   if (driveCount === 0 && !elevated.restraint) return 'homeostatic';
   if (driveCount === 0 && elevated.restraint) return 'cognitive_restrainer';
-  if (driveCount >= 2 && elevated.restraint) return 'effortful_restrainer';
-  if (driveCount >= 2) return 'multi_driver';
-  if (elevated.hedonic) return 'hedonic_responder';
+  if (driveCount === 2) return 'multi_driver';
+  if (driveCount === 1 && elevated.restraint) return 'effortful_restrainer';
+  if (elevated.rewardDriven) return 'reward_driven';
   if (elevated.emotional) return 'emotional_eater';
-  if (elevated.uncontrolled) return 'disinhibited_eater';
   return 'mixed';
 }
 
@@ -187,9 +224,9 @@ const PHENOTYPES = {
   homeostatic: {
     name: 'Homeostatic Eater',
     tagline: 'Your eating is largely driven by physiological hunger.',
-    paragraph: 'Your profile suggests that food reward, emotional triggers, and loss-of-control eating are not prominent drivers for you. Eating appears to respond primarily to physical hunger signals rather than to environmental cues or internal states.',
+    paragraph: 'Your profile suggests that reward-based eating, emotional triggers, and loss-of-control eating are not prominent drivers for you. Eating appears to respond primarily to physical hunger signals rather than to environmental cues, internal states, or food preoccupation.',
     glp1: [
-      'GLP-1 medications tend to produce straightforward appetite reduction in this profile, without dramatic changes in how food feels psychologically.',
+      'GLP-1 medications tend to produce straightforward appetite reduction in this profile, without dramatic shifts in how food feels psychologically.',
       'Your main risk is under-eating: because satiety comes easily, you may need to consciously meet protein and calorie targets to preserve lean mass.',
       'Discontinuation risk is moderate but typically more about hunger signals returning than about reward-driven relapse.',
     ],
@@ -198,66 +235,55 @@ const PHENOTYPES = {
   cognitive_restrainer: {
     name: 'Cognitive Restrainer',
     tagline: 'You manage eating through conscious control, with relatively quiet food drives.',
-    paragraph: 'You show elevated cognitive restraint without the strong uncontrolled, emotional, or hedonic drives that often accompany it. This is an adaptive pattern for many people\u2014but it depends on sustained cognitive effort that can be disrupted by stress, sleep loss, or dietary rules that are too rigid.',
+    paragraph: 'You show elevated cognitive restraint without strong reward-driven or emotional eating tendencies. This is an adaptive pattern for many people, but it depends on sustained cognitive effort that can be disrupted by stress, sleep loss, or dietary rules that are too rigid.',
     glp1: [
-      'GLP-1 medications often feel confirming for this profile: they reduce the low-grade appetite noise you\u2019ve been managing cognitively.',
+      'GLP-1 medications often feel confirming for this profile: they reduce the low-grade appetite noise you’ve been managing cognitively.',
       'Watch for reliance on the drug to maintain restraint. Skills-based support during treatment builds discontinuation resilience.',
-      'Rigid rule-based restraint can tip into disinhibition if rules are broken. Flexible restraint (planning, not prohibition) is more sustainable.',
+      'Rigid rule-based restraint can tip into disinhibition if rules are broken. Flexible restraint (planning, not prohibition) is more sustainable long-term.',
     ],
     focus: ['Flexible vs rigid restraint', 'Discontinuation planning', 'Stress buffering'],
   },
   effortful_restrainer: {
     name: 'Effortful Restrainer',
-    tagline: 'You use cognitive control to manage strong, multi-channel food drives.',
-    paragraph: 'Your profile shows the classic restraint-disinhibition tension: high conscious control combined with elevated drives (emotional, hedonic, or uncontrolled). This is the pattern most at risk for the counter-regulatory rebound when restraint breaks down, and one of the most common profiles in chronic dieters.',
+    tagline: 'You use cognitive control to manage strong food drives.',
+    paragraph: 'Your profile shows the classic restraint-disinhibition tension: high conscious control combined with an elevated drive (reward-based or emotional). This is the pattern most at risk for the counter-regulatory rebound when restraint breaks down, and one of the most common profiles in chronic dieters.',
     glp1: [
-      'GLP-1 medications can feel transformative for this profile\u2014for the first time, control doesn\u2019t require white-knuckling. This is often the group that reports "the food noise is gone."',
+      'GLP-1 medications can feel transformative for this profile—for the first time, control doesn’t require white-knuckling. This is often the group that reports "the food noise is gone."',
       'The risk is that the drug is doing the regulatory work your restraint was doing before. Without building skills, discontinuation tends to produce rebound.',
       'This is the profile where behavioral support during the drug window matters most for long-term outcomes.',
     ],
-    focus: ['Skill-building during treatment', 'Emotion regulation', 'Identifying personal triggers'],
+    focus: ['Skill-building during treatment', 'Trigger identification', 'Discontinuation planning'],
   },
   emotional_eater: {
     name: 'Emotional Eater',
     tagline: 'Your eating is meaningfully driven by affective states.',
-    paragraph: 'Emotional eating is your dominant driver. Eating in response to negative affect (anxiety, sadness, loneliness, irritation) is common and largely serves a self-regulation function\u2014food reliably, if briefly, reduces distress.',
+    paragraph: 'Emotional eating is your dominant driver. Eating in response to negative affect (anxiety, sadness, loneliness, irritation) is common and largely serves a self-regulation function—food reliably, if briefly, reduces distress.',
     glp1: [
       'GLP-1 medications reduce physiological hunger but often leave emotional eating relatively intact. The urge to eat when stressed or sad may persist even when hunger is absent.',
-      'This is the profile where GLP-1s sometimes feel "less effective than expected"\u2014because the drug isn\u2019t targeting your main driver.',
+      'This is the profile where GLP-1s sometimes feel "less effective than expected"—because the drug isn’t directly targeting your main driver.',
       'Emotion regulation skills (not just diet skills) are the right intervention here. Consider this a window to build them while appetite noise is reduced.',
     ],
     focus: ['Emotion regulation', 'Non-food coping strategies', 'Distress tolerance'],
   },
-  hedonic_responder: {
-    name: 'Hedonic Responder',
-    tagline: 'Your eating is driven by food reward and environmental cues.',
-    paragraph: 'Your profile shows elevated sensitivity to the reward properties of food\u2014the sight, smell, anticipation, and taste of palatable food are unusually motivating for you. This is sometimes called hedonic hunger: wanting food in the absence of caloric need.',
+  reward_driven: {
+    name: 'Reward-Driven Eater',
+    tagline: 'Your eating is driven by food reward, preoccupation, and difficulty satiating.',
+    paragraph: 'Your profile shows elevated reward-based eating drive: a tendency to eat past fullness when food is rewarding, frequent food-related thoughts, and difficulty stopping once started. This is the eating pattern most directly aligned with the brain reward and satiation circuits that GLP-1 medications act on.',
     glp1: [
-      'GLP-1 medications affect reward circuitry in addition to homeostatic hunger, and many Hedonic Responders report the most striking subjective change\u2014food loses some of its pull.',
-      'The risk is that when the drug is discontinued, reward signaling returns; if you haven\u2019t changed your food environment, the old cues are still there.',
-      'This is an ideal window to reshape your food environment: what\u2019s in your home, what routes you take, which cues you\u2019ve been responding to.',
+      'This is often the profile that reports the most striking subjective change on GLP-1s—food preoccupation drops, satiety feels real, and the loss-of-control episodes quiet.',
+      'Pay attention to whether reward-driven episodes persist despite reduced hunger. If they do, the pattern may be more binge-type and warrants specific behavioral support.',
+      'The risk window is discontinuation: when reward signaling returns, your food environment is still the same one that drove the original pattern. Reshape it now.',
     ],
-    focus: ['Environmental restructuring', 'Cue exposure awareness', 'Planning for discontinuation'],
-  },
-  disinhibited_eater: {
-    name: 'Disinhibited Eater',
-    tagline: 'Your eating is marked by loss-of-control episodes and strong hunger signals.',
-    paragraph: 'Your profile shows elevated uncontrolled eating: strong hunger signals, difficulty stopping once started, and responsiveness to external eating cues. This pattern overlaps with but is not identical to binge eating.',
-    glp1: [
-      'GLP-1 medications are generally highly effective for this profile\u2014reducing hunger intensity and interrupting the eating cascades that define the pattern.',
-      'Pay attention to whether loss-of-control episodes persist despite reduced hunger. If they do, the pattern may be more binge-type and warrants specific behavioral support.',
-      'Building regular eating structure (not skipping meals) is counterintuitively protective against disinhibition.',
-    ],
-    focus: ['Regular meal structure', 'Satiety-cue recognition', 'Screening for binge pattern'],
+    focus: ['Environmental restructuring', 'Regular meal structure', 'Screening for binge pattern'],
   },
   multi_driver: {
     name: 'Multi-Driver Profile',
     tagline: 'Multiple eating drivers are elevated simultaneously.',
-    paragraph: 'Your profile shows elevations across two or more of emotional, hedonic, and uncontrolled eating. This is a more complex presentation that typically benefits from more layered support\u2014different drivers respond to different interventions.',
+    paragraph: 'Your profile shows elevations across both emotional and reward-driven eating, with or without restraint in the mix. This is a more complex presentation that typically benefits from layered support—different drivers respond to different interventions, and treating them as one tends to produce uneven results.',
     glp1: [
-      'GLP-1 medications will likely address some drivers (particularly hunger and reward) more than others (particularly emotional).',
-      'Expect a mixed experience: some eating patterns may quiet dramatically while others persist. This is informative, not failure.',
-      'A phased approach\u2014targeting one driver at a time with tailored skills\u2014often works better than trying to change everything at once.',
+      'GLP-1 medications will likely address some drivers (particularly reward and satiation) more than others (particularly emotional).',
+      'Expect a mixed experience: some eating patterns may quiet dramatically while others persist. This is informative, not failure—it tells you which driver to target with skills-based work.',
+      'A phased approach—targeting one driver at a time with tailored skills—often works better than trying to change everything at once.',
     ],
     focus: ['Layered assessment', 'Sequenced skill-building', 'Specialist consultation'],
   },
@@ -276,19 +302,25 @@ const PHENOTYPES = {
 
 
 // =============================================================================
-// 2. HOOKS & GLOBAL STYLES
+// 4. HOOKS & GLOBAL STYLES
 // =============================================================================
 
 function useFonts() {
   useEffect(() => {
     if (typeof document === 'undefined') return;
-    if (document.getElementById('meridian-fonts')) return;
+    if (document.getElementById('appetite-atlas-fonts')) return;
     const link = document.createElement('link');
-    link.id = 'meridian-fonts';
+    link.id = 'appetite-atlas-fonts';
     link.rel = 'stylesheet';
     link.href = 'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap';
     document.head.appendChild(link);
   }, []);
+}
+
+function useDocumentTitle(title) {
+  useEffect(() => {
+    document.title = title;
+  }, [title]);
 }
 
 function GlobalStyles() {
@@ -339,17 +371,17 @@ function GlobalStyles() {
         .hide-mobile { display: none !important; }
         .grid-2 { grid-template-columns: 1fr !important; gap: 32px !important; }
         .grid-3 { grid-template-columns: 1fr !important; gap: 32px !important; }
+        .grid-4 { grid-template-columns: repeat(2, 1fr) !important; gap: 16px !important; }
         .section-pad { padding: 80px 24px !important; }
         .hero-pad { padding: 120px 24px 80px !important; }
       }
 
-      /* PRINT STYLES (for the "Download PDF" button on results) */
+      /* PRINT STYLES (for "Download PDF" button on results) */
       @media print {
         body { background: white; }
         .no-print { display: none !important; }
         .print-page-break { page-break-before: always; }
         .print-avoid-break { page-break-inside: avoid; }
-        .print-bg-light { background: white !important; color: ${COLORS.text} !important; }
         * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
       }
     `}</style>
@@ -358,35 +390,28 @@ function GlobalStyles() {
 
 
 // =============================================================================
-// 3. SHARED COMPONENTS
+// 5. SHARED COMPONENTS
 // =============================================================================
 
 function Logo({ size = 22, onClick }) {
   return (
     <div onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: onClick ? 'pointer' : 'default' }}>
-      <div style={{ width: size, height: size, borderRadius: '50%', background: COLORS.forest, position: 'relative' }}>
+      <div style={{ width: size, height: size, borderRadius: '50%', background: COLORS.forest, position: 'relative', flexShrink: 0 }}>
         <div style={{ position: 'absolute', inset: size * 0.27, borderRadius: '50%', background: COLORS.cream }} />
       </div>
-      <span style={{ fontFamily: FONT_SERIF, fontSize: size, letterSpacing: '0.01em', color: COLORS.text }}>Meridian</span>
+      <span style={{ fontFamily: FONT_SERIF, fontSize: size, letterSpacing: '0.01em', color: COLORS.text, lineHeight: 1, whiteSpace: 'nowrap' }}>{BRAND_NAME}</span>
     </div>
   );
 }
 
-function Button({ children, onClick, variant = 'primary', disabled, style, ...rest }) {
+function Button({ children, onClick, variant = 'primary', disabled, style, type, ...rest }) {
   const base = {
-    fontFamily: FONT_SANS,
-    fontSize: 15,
-    fontWeight: 500,
-    padding: '14px 26px',
-    borderRadius: 2,
+    fontFamily: FONT_SANS, fontSize: 15, fontWeight: 500,
+    padding: '14px 26px', borderRadius: 2,
     cursor: disabled ? 'not-allowed' : 'pointer',
-    transition: 'all 200ms ease',
-    border: 'none',
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: 10,
-    letterSpacing: '0.01em',
-    opacity: disabled ? 0.4 : 1,
+    transition: 'all 200ms ease', border: 'none',
+    display: 'inline-flex', alignItems: 'center', gap: 10,
+    letterSpacing: '0.01em', opacity: disabled ? 0.4 : 1,
     textDecoration: 'none',
   };
   const variants = {
@@ -396,7 +421,7 @@ function Button({ children, onClick, variant = 'primary', disabled, style, ...re
     cream:   { background: COLORS.cream, color: COLORS.forest },
   };
   return (
-    <button onClick={onClick} disabled={disabled} style={{ ...base, ...variants[variant], ...style }} {...rest}>
+    <button type={type || 'button'} onClick={onClick} disabled={disabled} style={{ ...base, ...variants[variant], ...style }} {...rest}>
       {children}
     </button>
   );
@@ -412,9 +437,25 @@ function SectionHeader({ number, label }) {
   );
 }
 
+function PrototypeBanner() {
+  return (
+    <div className="no-print" style={{
+      background: '#3D2E1F',
+      color: '#F5E8D8',
+      padding: '8px 28px',
+      fontSize: 11,
+      fontFamily: FONT_MONO,
+      letterSpacing: '0.05em',
+      textAlign: 'center',
+    }}>
+      PROTOTYPE · TFEQ-R21 and RED-9 items shown are placeholder approximations of the validated wording
+    </div>
+  );
+}
+
 
 // =============================================================================
-// 4. MARKETING SITE
+// 6. MARKETING SITE
 // =============================================================================
 
 function MarketingSite({ onStartAssessment }) {
@@ -423,7 +464,7 @@ function MarketingSite({ onStartAssessment }) {
   const [submitError, setSubmitError] = useState('');
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     setSubmitError('');
     if (!email || !email.includes('@') || !email.includes('.')) {
       setSubmitError('Please enter a valid email.');
@@ -498,7 +539,7 @@ function Hero({ onStartAssessment, onNav }) {
           maxWidth: '17ch',
           color: COLORS.text,
         }}>
-          GLP-1 changed how you eat. <em style={{ fontStyle: 'italic', color: COLORS.forest }}>Meridian helps you understand why.</em>
+          GLP-1 changed how you eat. <em style={{ fontStyle: 'italic', color: COLORS.forest }}>{BRAND_NAME} helps you understand why.</em>
         </h1>
 
         <p className="fade-up d3" style={{
@@ -508,13 +549,13 @@ function Hero({ onStartAssessment, onNav }) {
           maxWidth: '54ch',
           margin: '0 0 56px 0',
         }}>
-          An evidence-based eating-behavior assessment, built for the questions your medication can\u2019t answer. Designed by a PhD researcher in human eating behavior \u2014 for the people actually living through this.
+          An evidence-based eating-behavior assessment, built for the questions your medication can’t answer. Designed by a PhD researcher in human eating behavior — for the people actually living through this.
         </p>
 
         <div className="fade-up d4" style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
           <Button onClick={onStartAssessment}>
             Take the assessment
-            <span style={{ fontSize: 18, lineHeight: 1 }}>\u2192</span>
+            <span style={{ fontSize: 18, lineHeight: 1 }}>→</span>
           </Button>
           <Button variant="outline" onClick={() => onNav('approach')}>Learn the science</Button>
         </div>
@@ -539,22 +580,18 @@ function Gap() {
         <SectionHeader number="01" label="The Gap" />
         <div className="grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 96 }}>
           <h2 style={{
-            fontFamily: FONT_SERIF,
-            fontSize: 'clamp(2rem, 4vw, 3.25rem)',
-            lineHeight: 1.1,
-            fontWeight: 400,
-            letterSpacing: '-0.02em',
-            margin: 0,
-            color: COLORS.text,
+            fontFamily: FONT_SERIF, fontSize: 'clamp(2rem, 4vw, 3.25rem)',
+            lineHeight: 1.1, fontWeight: 400, letterSpacing: '-0.02em',
+            margin: 0, color: COLORS.text,
           }}>
             Most GLP-1 apps track. <em style={{ fontStyle: 'italic', color: COLORS.forest }}>None of them ask why you eat.</em>
           </h2>
           <div>
             <p style={{ fontSize: 18, lineHeight: 1.65, color: COLORS.text, margin: '0 0 24px 0' }}>
-              The medication quiets hunger. It doesn\u2019t change emotional eating, response to highly palatable food, or the way restraint plays out across your week. Roughly two-thirds of patients discontinue within a year, and most regain weight when they do \u2014 because the drug was never the part that addressed eating behavior.
+              The medication quiets hunger. It doesn’t change emotional eating, response to highly palatable food, or the way restraint plays out across your week. Roughly two-thirds of patients discontinue within a year, and most regain weight when they do — because the drug was never the part that addressed eating behavior.
             </p>
             <p style={{ fontSize: 18, lineHeight: 1.65, color: COLORS.text, margin: 0 }}>
-              Meridian fills the gap that calorie counters and habit trackers don\u2019t. It uses validated instruments from eating-behavior research to map how you actually relate to food \u2014 and what that means for your time on, off, and after GLP-1.
+              {BRAND_NAME} fills the gap that calorie counters and habit trackers don’t. It uses validated instruments from eating-behavior research to map how you actually relate to food — and what that means for your time on, off, and after GLP-1.
             </p>
             <div style={{
               marginTop: 56, paddingTop: 32, borderTop: `1px solid ${COLORS.border}`,
@@ -575,12 +612,8 @@ function Stat({ number, label }) {
   return (
     <div>
       <div style={{
-        fontFamily: FONT_SERIF,
-        fontSize: 'clamp(2rem, 3.4vw, 2.6rem)',
-        fontWeight: 400,
-        color: COLORS.forest,
-        letterSpacing: '-0.015em',
-        marginBottom: 8,
+        fontFamily: FONT_SERIF, fontSize: 'clamp(2rem, 3.4vw, 2.6rem)',
+        fontWeight: 400, color: COLORS.forest, letterSpacing: '-0.015em', marginBottom: 8,
       }}>
         {number}
       </div>
@@ -592,23 +625,16 @@ function Stat({ number, label }) {
 function Approach() {
   return (
     <section className="section-pad" id="approach" style={{
-      padding: '140px 48px',
-      background: '#EDE6D5',
-      position: 'relative', overflow: 'hidden',
+      padding: '140px 48px', background: '#EDE6D5', position: 'relative', overflow: 'hidden',
     }}>
       <div className="grain-overlay" />
       <div style={{ maxWidth: 1280, margin: '0 auto', position: 'relative' }}>
         <SectionHeader number="02" label="The Approach" />
 
         <h2 style={{
-          fontFamily: FONT_SERIF,
-          fontSize: 'clamp(2.25rem, 5vw, 4.25rem)',
-          lineHeight: 1.05,
-          fontWeight: 400,
-          letterSpacing: '-0.025em',
-          margin: '0 0 80px 0',
-          maxWidth: '20ch',
-          color: COLORS.text,
+          fontFamily: FONT_SERIF, fontSize: 'clamp(2.25rem, 5vw, 4.25rem)',
+          lineHeight: 1.05, fontWeight: 400, letterSpacing: '-0.025em',
+          margin: '0 0 80px 0', maxWidth: '20ch', color: COLORS.text,
         }}>
           Built on the research, not the trend cycle.
         </h2>
@@ -616,15 +642,15 @@ function Approach() {
         <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 48 }}>
           <Pillar
             label="Validated Instruments"
-            text="The assessment uses items from the Three-Factor Eating Questionnaire (TFEQ-R21) and Power of Food Scale \u2014 the gold standards for measuring cognitive restraint, emotional eating, uncontrolled eating, and hedonic responsiveness."
+            text="The assessment uses items from the Three-Factor Eating Questionnaire (TFEQ-R21) and the Reward-based Eating Drive scale (RED-9) — gold standards for measuring cognitive restraint, emotional eating, uncontrolled eating, and reward-driven eating patterns."
           />
           <Pillar
             label="Phenotype, Not Diet"
-            text="Eight distinct eating profiles, not one set of rules. The same GLP-1 dose lands very differently depending on whether you\u2019re a Cognitive Restrainer or an Emotional Eater. Your phenotype tells you what to actually focus on."
+            text="Seven distinct eating profiles, not one set of rules. The same GLP-1 dose lands very differently depending on whether you’re a Cognitive Restrainer or a Reward-Driven Eater. Your phenotype tells you what to actually focus on."
           />
           <Pillar
             label="GLP-1 Native"
-            text="Most behavioral nutrition tools were built for a pre-GLP-1 world. Meridian is designed for the questions you actually have right now \u2014 about plateaus, food noise, tapering, and what comes next."
+            text={`Most behavioral nutrition tools were built for a pre-GLP-1 world. ${BRAND_NAME} is designed for the questions you actually have right now — about plateaus, food noise, tapering, and what comes next.`}
           />
         </div>
 
@@ -636,16 +662,11 @@ function Approach() {
             From the founder
           </div>
           <p style={{
-            fontFamily: FONT_SERIF,
-            fontSize: 'clamp(1.4rem, 2.2vw, 1.95rem)',
-            lineHeight: 1.4,
-            fontStyle: 'italic',
-            fontWeight: 400,
-            color: COLORS.text,
-            margin: 0,
-            letterSpacing: '-0.01em',
+            fontFamily: FONT_SERIF, fontSize: 'clamp(1.4rem, 2.2vw, 1.95rem)',
+            lineHeight: 1.4, fontStyle: 'italic', fontWeight: 400,
+            color: COLORS.text, margin: 0, letterSpacing: '-0.01em',
           }}>
-            "After a decade studying eating behavior, what I see in the GLP-1 conversation is a missing piece. The medication is a tool. Understanding the way you eat is the rest of the work \u2014 and it\u2019s the part that has to come from you."
+            "After a decade studying eating behavior, what I see in the GLP-1 conversation is a missing piece. The medication is a tool. Understanding the way you eat is the rest of the work — and it’s the part that has to come from you."
           </p>
         </div>
       </div>
@@ -657,13 +678,9 @@ function Pillar({ label, text }) {
   return (
     <div>
       <div style={{
-        fontFamily: FONT_MONO,
-        fontSize: 10,
-        letterSpacing: '0.2em',
-        textTransform: 'uppercase',
-        color: COLORS.terracotta,
-        fontWeight: 500,
-        marginBottom: 20,
+        fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.2em',
+        textTransform: 'uppercase', color: COLORS.terracotta,
+        fontWeight: 500, marginBottom: 20,
       }}>
         {label}
       </div>
@@ -680,25 +697,22 @@ function AssessmentSection({ onStartAssessment }) {
         <div className="grid-2" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 96, alignItems: 'start' }}>
           <div>
             <h2 style={{
-              fontFamily: FONT_SERIF,
-              fontSize: 'clamp(2.25rem, 4.6vw, 3.75rem)',
-              lineHeight: 1.05,
-              fontWeight: 400,
-              letterSpacing: '-0.025em',
+              fontFamily: FONT_SERIF, fontSize: 'clamp(2.25rem, 4.6vw, 3.75rem)',
+              lineHeight: 1.05, fontWeight: 400, letterSpacing: '-0.025em',
               margin: '0 0 32px 0',
             }}>
-              Ten minutes. <em style={{ fontStyle: 'italic', color: COLORS.forest }}>One precise picture of how you eat.</em>
+              About ten minutes. <em style={{ fontStyle: 'italic', color: COLORS.forest }}>One precise picture of how you eat.</em>
             </h2>
             <p style={{ fontSize: 18, lineHeight: 1.65, color: COLORS.text, margin: '0 0 40px 0' }}>
-              You\u2019ll answer questions drawn from validated eating-behavior research. We map your responses across four dimensions \u2014 cognitive restraint, uncontrolled eating, emotional eating, and hedonic responsiveness to food \u2014 and surface the eating phenotype that fits your patterns most closely.
+              You’ll answer 30 questions drawn from validated eating-behavior research. We map your responses across four dimensions — cognitive restraint, uncontrolled eating, emotional eating, and reward-based eating drive — and surface the eating phenotype that fits your patterns most closely.
             </p>
 
-            <ProcessStep number="01" title="Answer" text="Roughly 30 questions about how you eat, why you eat, and what foods do to you. No tracking, no logging." />
-            <ProcessStep number="02" title="Map" text="Your responses are scored across the four research-grounded dimensions and matched to one of eight eating phenotypes." />
+            <ProcessStep number="01" title="Answer" text="Questions about how you eat, why you eat, and what foods do to you. Plus a short module on how your GLP-1 experience is actually going." />
+            <ProcessStep number="02" title="Map" text="Your responses are scored across the four research-grounded dimensions and matched to one of seven eating phenotypes." />
             <ProcessStep number="03" title="Understand" text="A personalized profile that names your patterns, explains what they mean for GLP-1 specifically, and points to where the work actually lives for you." last />
 
             <div style={{ marginTop: 48 }}>
-              <Button onClick={onStartAssessment}>Begin assessment <span style={{ fontSize: 18, lineHeight: 1 }}>\u2192</span></Button>
+              <Button onClick={onStartAssessment}>Begin assessment <span style={{ fontSize: 18, lineHeight: 1 }}>→</span></Button>
               <p style={{ fontSize: 13, color: COLORS.muted, marginTop: 16 }}>
                 Free during private beta. No account required.
               </p>
@@ -707,12 +721,8 @@ function AssessmentSection({ onStartAssessment }) {
 
           {/* Sample output card */}
           <div style={{
-            background: COLORS.forest,
-            color: COLORS.cream,
-            padding: '48px 40px',
-            borderRadius: 4,
-            position: 'sticky',
-            top: 100,
+            background: COLORS.forest, color: COLORS.cream,
+            padding: '48px 40px', borderRadius: 4, position: 'sticky', top: 100,
           }}>
             <div style={{
               fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.22em',
@@ -724,10 +734,10 @@ function AssessmentSection({ onStartAssessment }) {
               Your eating phenotype
             </div>
             <div style={{ fontFamily: FONT_SERIF, fontSize: 42, fontWeight: 400, letterSpacing: '-0.015em', marginBottom: 24, lineHeight: 1.05 }}>
-              The Hedonic Responder
+              Reward-Driven Eater
             </div>
             <p style={{ fontSize: 15, lineHeight: 1.55, color: '#D8DDD3', margin: '0 0 32px 0' }}>
-              Your eating is shaped less by hunger and more by the appetitive pull of available food. GLP-1 likely takes the edge off cravings \u2014 but the underlying responsiveness to food cues hasn\u2019t gone away.
+              Your eating is shaped less by hunger and more by food reward, preoccupation, and difficulty satiating. GLP-1 likely takes the edge off cravings — but the underlying patterns haven’t gone away.
             </p>
             <div style={{ borderTop: `1px solid rgba(255,255,255,0.15)`, paddingTop: 24 }}>
               <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: COLORS.amber, marginBottom: 16, fontWeight: 500 }}>
@@ -736,7 +746,7 @@ function AssessmentSection({ onStartAssessment }) {
               <ScoreBar label="Cognitive Restraint" value={32} />
               <ScoreBar label="Uncontrolled Eating" value={48} />
               <ScoreBar label="Emotional Eating" value={29} />
-              <ScoreBar label="Hedonic Responsiveness" value={78} />
+              <ScoreBar label="Reward-Based Eating Drive" value={78} />
             </div>
           </div>
         </div>
@@ -788,45 +798,44 @@ function About() {
           <div>
             <div style={{
               aspectRatio: '4 / 5',
-              background: 'linear-gradient(135deg, #C9BBA5 0%, #A89378 100%)',
               borderRadius: 4, position: 'relative', overflow: 'hidden', marginBottom: 16,
+              background: COLORS.borderDark,
             }}>
-              <div style={{
-                position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: 'rgba(255,255,255,0.6)', fontFamily: FONT_MONO,
-                fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase',
-              }}>
-                Photo placeholder
-              </div>
+              <img
+                src={founderPhoto}
+                alt="Margaret Melone, PhD"
+                style={{
+                  width: '100%', height: '100%', objectFit: 'cover',
+                  objectPosition: 'center 30%',
+                  display: 'block',
+                }}
+              />
             </div>
             <div style={{ fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: COLORS.muted, fontWeight: 500 }}>
               {/* FOUNDER_NAME */}
               {FOUNDER_NAME}, PhD
             </div>
-            <div style={{ fontSize: 13, color: COLORS.muted, marginTop: 4 }}>Founder, Meridian</div>
+            <div style={{ fontSize: 13, color: COLORS.muted, marginTop: 4 }}>Founder, {BRAND_NAME}</div>
           </div>
 
           <div>
             <h2 style={{
-              fontFamily: FONT_SERIF,
-              fontSize: 'clamp(2rem, 4vw, 3.25rem)',
-              lineHeight: 1.1,
-              fontWeight: 400,
-              letterSpacing: '-0.02em',
+              fontFamily: FONT_SERIF, fontSize: 'clamp(2rem, 4vw, 3.25rem)',
+              lineHeight: 1.1, fontWeight: 400, letterSpacing: '-0.02em',
               margin: '0 0 32px 0',
             }}>
-              I\u2019ve spent a decade asking <em style={{ fontStyle: 'italic', color: COLORS.forest }}>why people eat the way they do.</em>
+              I’ve spent a decade asking <em style={{ fontStyle: 'italic', color: COLORS.forest }}>why people eat the way they do.</em>
             </h2>
 
             {/* FOUNDER_BIO — placeholder paragraphs, please rewrite */}
             <p style={{ fontSize: 17, lineHeight: 1.65, color: COLORS.text, margin: '0 0 24px 0' }}>
-              I hold a PhD in eating behavior, with research focused on the psychological and behavioral mechanisms that shape how, when, and why people eat. Before Meridian, my work centered on [research focus \u2014 e.g., appetite regulation, hedonic eating, behavioral phenotyping in obesity].
+              I hold a PhD in eating behavior, with research focused on the psychological and behavioral mechanisms that shape how, when, and why people eat. Before {BRAND_NAME}, my work centered on [research focus — e.g., appetite regulation, reward-based eating, behavioral phenotyping in obesity].
             </p>
             <p style={{ fontSize: 17, lineHeight: 1.65, color: COLORS.text, margin: '0 0 24px 0' }}>
-              I started Meridian because I kept seeing the same gap. GLP-1 medications are doing real, measurable good \u2014 and at the same time, the apps built around them are mostly calorie counters with new branding. None of them speak to the actual lived experience of having your appetite rewired, or to the questions about what happens when the drug stops doing the work.
+              I started {BRAND_NAME} because I kept seeing the same gap. GLP-1 medications are doing real, measurable good — and at the same time, the apps built around them are mostly calorie counters with new branding. None of them speak to the actual lived experience of having your appetite rewired, or to the questions about what happens when the drug stops doing the work.
             </p>
             <p style={{ fontSize: 17, lineHeight: 1.65, color: COLORS.text, margin: '0 0 32px 0' }}>
-              The eating-behavior science is there. The validated instruments exist. What\u2019s missing is a product that translates them into something useful for the millions of people taking these medications right now. That\u2019s what Meridian is.
+              The eating-behavior science is there. The validated instruments exist. What’s missing is a product that translates them into something useful for the millions of people taking these medications right now. That’s what {BRAND_NAME} is.
             </p>
 
             <div style={{
@@ -869,18 +878,15 @@ function Waitlist({ email, setEmail, submitted, submitError, onSubmit }) {
         </div>
 
         <h2 style={{
-          fontFamily: FONT_SERIF,
-          fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
-          lineHeight: 1,
-          fontWeight: 400,
-          letterSpacing: '-0.025em',
+          fontFamily: FONT_SERIF, fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
+          lineHeight: 1, fontWeight: 400, letterSpacing: '-0.025em',
           margin: '0 0 24px 0',
         }}>
-          Be first when Meridian opens.
+          Be first when {BRAND_NAME} opens.
         </h2>
 
         <p style={{ fontSize: 18, lineHeight: 1.55, color: '#D8DDD3', maxWidth: '52ch', margin: '0 auto 56px' }}>
-          Early access to the assessment, plus the research notes and writing I\u2019m publishing along the way. No spam, no daily emails \u2014 I write when there\u2019s something worth saying.
+          Early access to the assessment, plus the research notes and writing I’m publishing along the way. No spam, no daily emails — I write when there’s something worth saying.
         </p>
 
         {!submitted ? (
@@ -896,7 +902,7 @@ function Waitlist({ email, setEmail, submitted, submitError, onSubmit }) {
                 color: COLORS.cream, borderRadius: 2, outline: 'none', fontFamily: FONT_SANS,
               }}
             />
-            <Button variant="cream" type="submit" onClick={onSubmit}>Join waitlist</Button>
+            <Button type="submit" variant="cream">Join waitlist</Button>
             {submitError && (
               <div style={{ width: '100%', fontFamily: FONT_MONO, fontSize: 12, color: '#E8B098', marginTop: 8 }}>
                 {submitError}
@@ -909,16 +915,16 @@ function Waitlist({ email, setEmail, submitted, submitError, onSubmit }) {
             background: 'rgba(255,255,255,0.08)', border: `1px solid ${COLORS.terracotta}`, borderRadius: 2,
           }}>
             <div style={{ fontFamily: FONT_SERIF, fontSize: 26, fontWeight: 400, marginBottom: 8 }}>
-              You\u2019re on the list.
+              You’re on the list.
             </div>
             <div style={{ fontSize: 15, color: '#D8DDD3' }}>
-              We\u2019ll be in touch when the assessment opens. Thank you.
+              We’ll be in touch when the assessment opens. Thank you.
             </div>
           </div>
         )}
 
         <div style={{ marginTop: 48, fontFamily: FONT_MONO, fontSize: 11, color: COLORS.sage, letterSpacing: '0.05em' }}>
-          Your email stays private. We use it once \u2014 to tell you when Meridian is ready.
+          Your email stays private. We use it once — to tell you when {BRAND_NAME} is ready.
         </div>
       </div>
     </section>
@@ -942,7 +948,7 @@ function Footer() {
           fontFamily: FONT_MONO, fontSize: 11, color: COLORS.muted,
           display: 'flex', gap: 24, justifyContent: 'flex-end', flexWrap: 'wrap', letterSpacing: '0.05em',
         }}>
-          <span>\u00a9 2026 Meridian</span>
+          <span>© 2026 {BRAND_NAME}</span>
           <a className="nav-link" style={{ textDecoration: 'none', cursor: 'pointer' }}>Privacy</a>
           <a className="nav-link" style={{ textDecoration: 'none', cursor: 'pointer' }}>Terms</a>
           <a style={{ color: COLORS.muted, textDecoration: 'none' }} href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
@@ -954,17 +960,18 @@ function Footer() {
 
 
 // =============================================================================
-// 5. ASSESSMENT
+// 7. ASSESSMENT
 // =============================================================================
 
 function AssessmentApp({ onBackToSite }) {
   const [step, setStep] = useState('context');
   const [context, setContext] = useState({});
+  const [satisfaction, setSatisfaction] = useState({});
   const [tfeqA, setTfeqA] = useState({});
-  const [pfsA, setPfsA] = useState({});
+  const [redA, setRedA] = useState({});
   const [demo, setDemo] = useState({});
   const [tfeqIdx, setTfeqIdx] = useState(0);
-  const [pfsIdx, setPfsIdx] = useState(0);
+  const [redIdx, setRedIdx] = useState(0);
 
   const runScoring = () => {
     setStep('computing');
@@ -972,17 +979,24 @@ function AssessmentApp({ onBackToSite }) {
   };
 
   const reset = () => {
-    setContext({}); setTfeqA({}); setPfsA({}); setDemo({});
-    setTfeqIdx(0); setPfsIdx(0); setStep('context');
+    setContext({}); setSatisfaction({}); setTfeqA({}); setRedA({}); setDemo({});
+    setTfeqIdx(0); setRedIdx(0); setStep('context');
   };
 
   if (step === 'context') {
     return (
       <ContextScreen
-        answers={context}
-        setAnswers={setContext}
-        onBack={onBackToSite}
-        onNext={() => setStep('tfeq')}
+        answers={context} setAnswers={setContext}
+        onBack={onBackToSite} onNext={() => setStep('satisfaction')}
+        onLogoClick={onBackToSite}
+      />
+    );
+  }
+  if (step === 'satisfaction') {
+    return (
+      <SatisfactionScreen
+        answers={satisfaction} setAnswers={setSatisfaction}
+        onBack={() => setStep('context')} onNext={() => setStep('tfeq')}
         onLogoClick={onBackToSite}
       />
     );
@@ -992,21 +1006,20 @@ function AssessmentApp({ onBackToSite }) {
       <QuestionnaireScreen
         items={TFEQ_ITEMS} options={TFEQ_OPTIONS} answers={tfeqA} setAnswers={setTfeqA}
         idx={tfeqIdx} setIdx={setTfeqIdx}
-        partName="Eating patterns" partNum={2} totalParts={4}
-        progressBase={15} progressRange={45}
-        onComplete={() => setStep('pfs')}
-        onBack={() => setStep('context')}
+        partName="Eating patterns" partNum={3} totalParts={5}
+        progressBase={25} progressRange={45}
+        onComplete={() => setStep('red')} onBack={() => setStep('satisfaction')}
         onLogoClick={onBackToSite}
       />
     );
   }
-  if (step === 'pfs') {
+  if (step === 'red') {
     return (
       <QuestionnaireScreen
-        items={PFS_ITEMS} options={PFS_OPTIONS} answers={pfsA} setAnswers={setPfsA}
-        idx={pfsIdx} setIdx={setPfsIdx}
-        partName="Food reward" partNum={3} totalParts={4}
-        progressBase={60} progressRange={25}
+        items={RED_ITEMS} options={RED_OPTIONS} answers={redA} setAnswers={setRedA}
+        idx={redIdx} setIdx={setRedIdx}
+        partName="Reward & food drive" partNum={4} totalParts={5}
+        progressBase={70} progressRange={20}
         onComplete={() => setStep('demo')}
         onBack={() => { setTfeqIdx(TFEQ_ITEMS.length - 1); setStep('tfeq'); }}
         onLogoClick={onBackToSite}
@@ -1017,7 +1030,7 @@ function AssessmentApp({ onBackToSite }) {
     return (
       <DemographicsScreen
         answers={demo} setAnswers={setDemo}
-        onBack={() => { setPfsIdx(PFS_ITEMS.length - 1); setStep('pfs'); }}
+        onBack={() => { setRedIdx(RED_ITEMS.length - 1); setStep('red'); }}
         onNext={runScoring}
         onLogoClick={onBackToSite}
       />
@@ -1028,14 +1041,13 @@ function AssessmentApp({ onBackToSite }) {
   }
   if (step === 'results') {
     const tfeqScores = scoreTFEQ(tfeqA);
-    const pfsScores = scorePFS(pfsA);
-    const phenotypeKey = determinePhenotype(tfeqScores, pfsScores);
+    const redScores = scoreRED(redA);
+    const phenotypeKey = determinePhenotype(tfeqScores, redScores);
     return (
       <ResultsScreen
-        tfeq={tfeqScores} pfs={pfsScores} phenotypeKey={phenotypeKey}
-        context={context} demo={demo}
-        onRetake={reset}
-        onBackToSite={onBackToSite}
+        tfeq={tfeqScores} red={redScores} phenotypeKey={phenotypeKey}
+        satisfaction={satisfaction}
+        onRetake={reset} onBackToSite={onBackToSite}
       />
     );
   }
@@ -1045,6 +1057,7 @@ function AssessmentApp({ onBackToSite }) {
 function AssessmentShell({ children, progress, onLogoClick }) {
   return (
     <div style={{ minHeight: '100vh', background: COLORS.cream, color: COLORS.text, fontFamily: FONT_SANS }}>
+      <PrototypeBanner />
       <header className="no-print" style={{
         borderBottom: `1px solid ${COLORS.border}`, padding: '20px 28px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -1067,16 +1080,16 @@ function AssessmentShell({ children, progress, onLogoClick }) {
 function ContextScreen({ answers, setAnswers, onNext, onBack, onLogoClick }) {
   const allAnswered = GLP1_QUESTIONS.every(q => answers[q.id]);
   return (
-    <AssessmentShell progress={10} onLogoClick={onLogoClick}>
+    <AssessmentShell progress={8} onLogoClick={onLogoClick}>
       <div style={{ maxWidth: 680, margin: '0 auto', padding: '56px 28px 120px' }}>
         <div style={{ fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 16 }}>
-          Part 1 of 4 &middot; Your context
+          Part 1 of 5 &middot; Your context
         </div>
         <h2 style={{ fontFamily: FONT_SERIF, fontSize: 40, lineHeight: 1.1, margin: '0 0 16px', fontWeight: 400 }}>
           A few questions to anchor your profile.
         </h2>
         <p style={{ color: COLORS.muted, fontSize: 16, marginBottom: 40, lineHeight: 1.5 }}>
-          Your GLP-1 context shapes how we interpret your phenotype scores later.
+          The basics about your medication and where you are in your treatment.
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
           {GLP1_QUESTIONS.map((q, qi) => (
@@ -1109,8 +1122,226 @@ function ContextScreen({ answers, setAnswers, onNext, onBack, onLogoClick }) {
           ))}
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 56 }}>
-          <Button variant="ghost" onClick={onBack}>\u2190 Back to site</Button>
-          <Button onClick={onNext} disabled={!allAnswered}>Continue \u2192</Button>
+          <Button variant="ghost" onClick={onBack}>← Back to site</Button>
+          <Button onClick={onNext} disabled={!allAnswered}>Continue →</Button>
+        </div>
+      </div>
+    </AssessmentShell>
+  );
+}
+
+function SatisfactionSlider({ value, onChange }) {
+  const v = value ?? 5;
+  const labelFor = (n) => {
+    if (n <= 2) return 'Very dissatisfied';
+    if (n <= 4) return 'Dissatisfied';
+    if (n === 5) return 'Neutral';
+    if (n <= 7) return 'Satisfied';
+    return 'Very satisfied';
+  };
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: COLORS.muted, letterSpacing: '0.05em' }}>
+          {value == null ? 'Drag to set' : labelFor(v)}
+        </div>
+        <div style={{ fontFamily: FONT_SERIF, fontSize: 28, color: value == null ? COLORS.borderDark : COLORS.forest }}>
+          {value == null ? '—' : `${v}/10`}
+        </div>
+      </div>
+      <input
+        type="range" min="1" max="10" step="1" value={v}
+        onChange={(e) => onChange(parseInt(e.target.value, 10))}
+        style={{ width: '100%', accentColor: COLORS.forest, cursor: 'pointer' }}
+      />
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: FONT_MONO, fontSize: 10, color: COLORS.muted, letterSpacing: '0.1em', marginTop: 4 }}>
+        <span>1</span><span>5</span><span>10</span>
+      </div>
+    </div>
+  );
+}
+
+function SatisfactionScreen({ answers, setAnswers, onNext, onBack, onLogoClick }) {
+  const slidersAnswered = SATISFACTION_SLIDERS.every(s => answers[s.id] != null);
+  const plateauAnswered = !!answers.plateau;
+  const trajectoryAnswered = !!answers.trajectory;
+  const frustrationsList = answers.frustrations || [];
+  const frustrationsAnswered = frustrationsList.length > 0;
+  const hasOnlyNone = frustrationsList.length === 1 && frustrationsList[0].startsWith('None');
+  const topFrustrationAnswered = hasOnlyNone || (frustrationsList.length > 0 && answers.topFrustration);
+  const canContinue = slidersAnswered && plateauAnswered && trajectoryAnswered && frustrationsAnswered && topFrustrationAnswered;
+
+  const toggleFrustration = (opt) => {
+    const cur = answers.frustrations || [];
+    let next;
+    if (cur.includes(opt)) {
+      next = cur.filter(x => x !== opt);
+    } else {
+      if (opt.startsWith('None')) next = [opt];
+      else next = [...cur.filter(x => !x.startsWith('None')), opt];
+    }
+    const update = { ...answers, frustrations: next };
+    if (next.length === 1 && next[0].startsWith('None')) update.topFrustration = null;
+    else if (!next.includes(answers.topFrustration)) update.topFrustration = null;
+    setAnswers(update);
+  };
+
+  return (
+    <AssessmentShell progress={18} onLogoClick={onLogoClick}>
+      <div style={{ maxWidth: 680, margin: '0 auto', padding: '56px 28px 120px' }}>
+        <div style={{ fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 16 }}>
+          Part 2 of 5 &middot; How it’s going
+        </div>
+        <h2 style={{ fontFamily: FONT_SERIF, fontSize: 40, lineHeight: 1.1, margin: '0 0 16px', fontWeight: 400 }}>
+          Now, how is the experience itself?
+        </h2>
+        <p style={{ color: COLORS.muted, fontSize: 16, marginBottom: 48, lineHeight: 1.5 }}>
+          Your subjective experience matters as much as your eating phenotype. We’ll use both to interpret your results.
+        </p>
+
+        {/* SATISFACTION SLIDERS */}
+        <div style={{ marginBottom: 56 }}>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 24 }}>
+            Satisfaction · 1–10
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+            {SATISFACTION_SLIDERS.map(s => (
+              <div key={s.id}>
+                <div style={{ fontSize: 16, lineHeight: 1.4, marginBottom: 16 }}>{s.label}</div>
+                <SatisfactionSlider value={answers[s.id]} onChange={(v) => setAnswers({ ...answers, [s.id]: v })} />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* PLATEAU */}
+        <div style={{ marginBottom: 56 }}>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 16 }}>
+            Plateau
+          </div>
+          <div style={{ fontSize: 17, lineHeight: 1.4, marginBottom: 16 }}>Have you hit a plateau in the last month?</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {PLATEAU_OPTIONS.map(opt => {
+              const selected = answers.plateau === opt;
+              return (
+                <button
+                  key={opt}
+                  onClick={() => setAnswers({ ...answers, plateau: opt })}
+                  style={{
+                    fontFamily: FONT_SANS, fontSize: 14, padding: '10px 16px', borderRadius: 2,
+                    border: `1px solid ${selected ? COLORS.forest : COLORS.borderDark}`,
+                    background: selected ? COLORS.forest : 'transparent',
+                    color: selected ? COLORS.cream : COLORS.text,
+                    cursor: 'pointer', transition: 'all 150ms ease',
+                  }}
+                >
+                  {opt}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* FRUSTRATIONS */}
+        <div style={{ marginBottom: 56 }}>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 16 }}>
+            Frustrations
+          </div>
+          <div style={{ fontSize: 17, lineHeight: 1.4, marginBottom: 16 }}>
+            Which of these have been frustrating? <span style={{ color: COLORS.muted, fontStyle: 'italic' }}>Check all that apply.</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {FRUSTRATION_OPTIONS.map(opt => {
+              const selected = frustrationsList.includes(opt);
+              return (
+                <button
+                  key={opt}
+                  onClick={() => toggleFrustration(opt)}
+                  style={{
+                    fontFamily: FONT_SANS, fontSize: 15, padding: '12px 18px', textAlign: 'left',
+                    borderRadius: 2,
+                    border: `1px solid ${selected ? COLORS.forest : COLORS.borderDark}`,
+                    background: selected ? COLORS.forest : COLORS.card,
+                    color: selected ? COLORS.cream : COLORS.text,
+                    cursor: 'pointer', transition: 'all 150ms ease',
+                    display: 'flex', alignItems: 'center', gap: 12,
+                  }}
+                >
+                  <span style={{
+                    width: 16, height: 16,
+                    border: `1.5px solid ${selected ? COLORS.cream : COLORS.borderDark}`,
+                    borderRadius: 2,
+                    background: selected ? COLORS.cream : 'transparent',
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 11, color: COLORS.forest, fontWeight: 700, flexShrink: 0,
+                  }}>{selected ? '✓' : ''}</span>
+                  {opt}
+                </button>
+              );
+            })}
+          </div>
+
+          {frustrationsList.length > 0 && !hasOnlyNone && (
+            <div style={{ marginTop: 32, paddingTop: 24, borderTop: `1px solid ${COLORS.border}` }}>
+              <div style={{ fontSize: 16, lineHeight: 1.4, marginBottom: 14 }}>
+                Of those, what’s your <em>biggest</em> frustration right now?
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {frustrationsList.filter(f => !f.startsWith('None')).map(opt => {
+                  const selected = answers.topFrustration === opt;
+                  return (
+                    <button
+                      key={opt}
+                      onClick={() => setAnswers({ ...answers, topFrustration: opt })}
+                      style={{
+                        fontFamily: FONT_SANS, fontSize: 13, padding: '8px 14px', borderRadius: 2,
+                        border: `1px solid ${selected ? COLORS.terracotta : COLORS.borderDark}`,
+                        background: selected ? COLORS.terracotta : 'transparent',
+                        color: selected ? COLORS.cream : COLORS.text,
+                        cursor: 'pointer', transition: 'all 150ms ease',
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* TRAJECTORY */}
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 16 }}>
+            Recent trajectory
+          </div>
+          <div style={{ fontSize: 17, lineHeight: 1.4, marginBottom: 16 }}>Compared to a month ago, my progress has been...</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {TRAJECTORY_OPTIONS.map(opt => {
+              const selected = answers.trajectory === opt;
+              return (
+                <button
+                  key={opt}
+                  onClick={() => setAnswers({ ...answers, trajectory: opt })}
+                  style={{
+                    fontFamily: FONT_SANS, fontSize: 15, padding: '12px 18px', textAlign: 'left',
+                    borderRadius: 2,
+                    border: `1px solid ${selected ? COLORS.forest : COLORS.borderDark}`,
+                    background: selected ? COLORS.forest : COLORS.card,
+                    color: selected ? COLORS.cream : COLORS.text,
+                    cursor: 'pointer', transition: 'all 150ms ease',
+                  }}
+                >
+                  {opt}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 40 }}>
+          <Button variant="ghost" onClick={onBack}>← Back</Button>
+          <Button onClick={onNext} disabled={!canContinue}>Continue →</Button>
         </div>
       </div>
     </AssessmentShell>
@@ -1177,9 +1408,9 @@ function QuestionnaireScreen({ items, options, answers, setAnswers, idx, setIdx,
           })}
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 48 }}>
-          <Button variant="ghost" onClick={handleBack}>\u2190 Back</Button>
+          <Button variant="ghost" onClick={handleBack}>← Back</Button>
           {answered && idx < items.length - 1 && (
-            <Button variant="outline" onClick={() => setIdx(idx + 1)}>Next \u2192</Button>
+            <Button variant="outline" onClick={() => setIdx(idx + 1)}>Next →</Button>
           )}
         </div>
       </div>
@@ -1195,10 +1426,10 @@ function DemographicsScreen({ answers, setAnswers, onNext, onBack, onLogoClick }
     fontFamily: FONT_SANS, borderRadius: 2, color: COLORS.text, outline: 'none',
   };
   return (
-    <AssessmentShell progress={90} onLogoClick={onLogoClick}>
+    <AssessmentShell progress={92} onLogoClick={onLogoClick}>
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '56px 28px 120px' }}>
         <div style={{ fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 16 }}>
-          Part 4 of 4 &middot; About you
+          Part 5 of 5 &middot; About you
         </div>
         <h2 style={{ fontFamily: FONT_SERIF, fontSize: 40, lineHeight: 1.1, margin: '0 0 16px', fontWeight: 400 }}>
           Just a few basics.
@@ -1247,8 +1478,8 @@ function DemographicsScreen({ answers, setAnswers, onNext, onBack, onLogoClick }
           </div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 56 }}>
-          <Button variant="ghost" onClick={onBack}>\u2190 Back</Button>
-          <Button onClick={onNext} disabled={!canContinue}>See my profile \u2192</Button>
+          <Button variant="ghost" onClick={onBack}>← Back</Button>
+          <Button onClick={onNext} disabled={!canContinue}>See my profile →</Button>
         </div>
       </div>
     </AssessmentShell>
@@ -1271,26 +1502,90 @@ function ComputingScreen({ onLogoClick }) {
           ))}
         </div>
         <p style={{ color: COLORS.muted, fontFamily: FONT_SERIF, fontStyle: 'italic', fontSize: 22 }}>
-          Mapping your eating phenotype\u2026
+          Mapping your eating phenotype…
         </p>
       </div>
     </AssessmentShell>
   );
 }
 
-function ResultsScreen({ tfeq, pfs, phenotypeKey, context, demo, onRetake, onBackToSite }) {
+function StartingPointCallout({ satisfaction }) {
+  const overall = satisfaction.sat_overall;
+  const trajectoryArrow = {
+    'Significantly better': '↑↑',
+    'Somewhat better': '↑',
+    'About the same': '→',
+    'Somewhat worse': '↓',
+    'Significantly worse': '↓↓',
+  }[satisfaction.trajectory] || '→';
+  const satTone = overall >= 8 ? 'a strong place'
+    : overall >= 6 ? 'a generally positive place'
+    : overall >= 4 ? 'a mixed place'
+    : 'a frustrating place';
+
+  return (
+    <div className="print-avoid-break" style={{
+      background: COLORS.card, border: `1px solid ${COLORS.border}`,
+      padding: '32px 36px', marginBottom: 48,
+    }}>
+      <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 16 }}>
+        Your starting point
+      </div>
+      <div className="grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, marginBottom: 24 }}>
+        <div>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 6 }}>Overall</div>
+          <div style={{ fontFamily: FONT_SERIF, fontSize: 28, color: COLORS.forest }}>{overall}/10</div>
+        </div>
+        <div>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 6 }}>Results</div>
+          <div style={{ fontFamily: FONT_SERIF, fontSize: 28, color: COLORS.forest }}>{satisfaction.sat_results}/10</div>
+        </div>
+        <div>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 6 }}>Feel</div>
+          <div style={{ fontFamily: FONT_SERIF, fontSize: 28, color: COLORS.forest }}>{satisfaction.sat_feel}/10</div>
+        </div>
+        <div>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 6 }}>Food rel.</div>
+          <div style={{ fontFamily: FONT_SERIF, fontSize: 28, color: COLORS.forest }}>{satisfaction.sat_food}/10</div>
+        </div>
+      </div>
+      <div className="grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, paddingTop: 20, borderTop: `1px solid ${COLORS.border}` }}>
+        <div>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 6 }}>Plateau</div>
+          <div style={{ fontSize: 14 }}>{satisfaction.plateau}</div>
+        </div>
+        <div>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 6 }}>Last month {trajectoryArrow}</div>
+          <div style={{ fontSize: 14 }}>{satisfaction.trajectory}</div>
+        </div>
+      </div>
+      {satisfaction.topFrustration && (
+        <div style={{ marginTop: 20, paddingTop: 20, borderTop: `1px solid ${COLORS.border}` }}>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 6 }}>Biggest frustration</div>
+          <div style={{ color: COLORS.terracotta, fontStyle: 'italic', fontFamily: FONT_SERIF, fontSize: 18 }}>{satisfaction.topFrustration}</div>
+        </div>
+      )}
+      <div style={{ marginTop: 20, fontSize: 13, color: COLORS.muted, lineHeight: 1.5, fontStyle: 'italic' }}>
+        You’re entering this assessment from {satTone}. Your phenotype below helps explain why—and what to focus on next.
+      </div>
+    </div>
+  );
+}
+
+function ResultsScreen({ tfeq, red, phenotypeKey, satisfaction, onRetake, onBackToSite }) {
   const pheno = PHENOTYPES[phenotypeKey];
 
   const scoreData = [
-    { name: 'Cognitive\nRestraint',  score: tfeq.CR,        norm: 45, category: tfeq.CR > 55       ? 'high' : tfeq.CR > 35       ? 'mid' : 'low' },
-    { name: 'Uncontrolled\nEating',  score: tfeq.UE,        norm: 40, category: tfeq.UE > 55       ? 'high' : tfeq.UE > 35       ? 'mid' : 'low' },
-    { name: 'Emotional\nEating',     score: tfeq.EE,        norm: 35, category: tfeq.EE > 45       ? 'high' : tfeq.EE > 25       ? 'mid' : 'low' },
-    { name: 'Hedonic\nHunger',       score: pfs.AGG_pct,    norm: 40, category: pfs.AGG_pct > 50   ? 'high' : pfs.AGG_pct > 30   ? 'mid' : 'low' },
+    { name: 'Cognitive\nRestraint', score: tfeq.CR,    category: tfeq.CR > 55     ? 'high' : tfeq.CR > 35     ? 'mid' : 'low' },
+    { name: 'Emotional\nEating',    score: tfeq.EE,    category: tfeq.EE > 45     ? 'high' : tfeq.EE > 25     ? 'mid' : 'low' },
+    { name: 'Uncontrolled\nEating', score: tfeq.UE,    category: tfeq.UE > 55     ? 'high' : tfeq.UE > 35     ? 'mid' : 'low' },
+    { name: 'Reward-Based\nEating Drive', score: red.AGG_pct, category: red.AGG_pct > 50 ? 'high' : red.AGG_pct > 30 ? 'mid' : 'low' },
   ];
   const categoryColor = (cat) => ({ high: COLORS.terracotta, mid: COLORS.amber, low: COLORS.sage }[cat]);
 
   return (
     <div style={{ minHeight: '100vh', background: COLORS.cream, color: COLORS.text, fontFamily: FONT_SANS }}>
+      <PrototypeBanner />
       <header className="no-print" style={{
         borderBottom: `1px solid ${COLORS.border}`, padding: '20px 28px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -1303,6 +1598,8 @@ function ResultsScreen({ tfeq, pfs, phenotypeKey, context, demo, onRetake, onBac
       </header>
 
       <div style={{ maxWidth: 920, margin: '0 auto', padding: '64px 28px 120px' }}>
+        <StartingPointCallout satisfaction={satisfaction} />
+
         {/* HERO */}
         <div className="print-avoid-break" style={{ marginBottom: 64 }}>
           <div style={{ fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: COLORS.terracotta, marginBottom: 20 }}>
@@ -1330,17 +1627,12 @@ function ResultsScreen({ tfeq, pfs, phenotypeKey, context, demo, onRetake, onBac
           <div style={{ height: 280 }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={scoreData} margin={{ top: 20, right: 20, left: 0, bottom: 40 }}>
-                <XAxis dataKey="name" axisLine={false} tickLine={false}
-                  tick={{ fontSize: 12, fill: COLORS.text, fontFamily: 'IBM Plex Sans' }} interval={0} />
-                <YAxis domain={[0, 100]} axisLine={false} tickLine={false}
-                  tick={{ fontSize: 11, fill: COLORS.muted, fontFamily: 'IBM Plex Mono' }} ticks={[0, 25, 50, 75, 100]} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: COLORS.text, fontFamily: 'IBM Plex Sans' }} interval={0} />
+                <YAxis domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: COLORS.muted, fontFamily: 'IBM Plex Mono' }} ticks={[0, 25, 50, 75, 100]} />
                 <ReferenceLine y={50} stroke={COLORS.borderDark} strokeDasharray="2 4" />
                 <Bar dataKey="score" radius={[2, 2, 0, 0]}>
-                  {scoreData.map((entry, idx) => (
-                    <Cell key={idx} fill={categoryColor(entry.category)} />
-                  ))}
-                  <LabelList dataKey="score" position="top" formatter={(v) => Math.round(v)}
-                    style={{ fontFamily: 'IBM Plex Mono', fontSize: 11, fill: COLORS.text }} />
+                  {scoreData.map((entry, idx) => <Cell key={idx} fill={categoryColor(entry.category)} />)}
+                  <LabelList dataKey="score" position="top" formatter={(v) => Math.round(v)} style={{ fontFamily: 'IBM Plex Mono', fontSize: 11, fill: COLORS.text }} />
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -1349,18 +1641,10 @@ function ResultsScreen({ tfeq, pfs, phenotypeKey, context, demo, onRetake, onBac
             display: 'flex', gap: 20, marginTop: 24, paddingTop: 20, borderTop: `1px solid ${COLORS.border}`,
             fontFamily: FONT_MONO, fontSize: 12, color: COLORS.muted, letterSpacing: '0.05em',
           }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ width: 10, height: 10, background: COLORS.sage, borderRadius: 2 }} /> Low
-            </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ width: 10, height: 10, background: COLORS.amber, borderRadius: 2 }} /> Moderate
-            </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ width: 10, height: 10, background: COLORS.terracotta, borderRadius: 2 }} /> Elevated
-            </span>
-            <span style={{ marginLeft: 'auto', textTransform: 'none', fontFamily: FONT_SANS }}>
-              Scores on 0\u2013100 scale. Dashed line = population median.
-            </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, background: COLORS.sage, borderRadius: 2 }} /> Low</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, background: COLORS.amber, borderRadius: 2 }} /> Moderate</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, background: COLORS.terracotta, borderRadius: 2 }} /> Elevated</span>
+            <span style={{ marginLeft: 'auto', textTransform: 'none', fontFamily: FONT_SANS }}>Scores on 0–100 scale. Dashed line = population median.</span>
           </div>
         </div>
 
@@ -1370,7 +1654,7 @@ function ResultsScreen({ tfeq, pfs, phenotypeKey, context, demo, onRetake, onBac
             For your GLP-1 journey
           </div>
           <h2 style={{ fontFamily: FONT_SERIF, fontSize: 40, lineHeight: 1.1, margin: '0 0 32px', fontWeight: 400 }}>
-            What this means while you\u2019re on the drug.
+            What this means while you’re on the drug.
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             {pheno.glp1.map((text, i) => (
@@ -1392,7 +1676,7 @@ function ResultsScreen({ tfeq, pfs, phenotypeKey, context, demo, onRetake, onBac
           <h2 style={{ fontFamily: FONT_SERIF, fontSize: 32, lineHeight: 1.2, margin: '0 0 28px', fontWeight: 400 }}>
             Three areas matched to your phenotype.
           </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+          <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
             {pheno.focus.map((f, i) => (
               <div key={i} style={{ borderTop: `1px solid ${COLORS.sage}`, paddingTop: 16 }}>
                 <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: COLORS.sage, letterSpacing: '0.15em', marginBottom: 8 }}>
@@ -1404,7 +1688,7 @@ function ResultsScreen({ tfeq, pfs, phenotypeKey, context, demo, onRetake, onBac
           </div>
         </div>
 
-        {/* CONSULTATION CTA — NEW */}
+        {/* CONSULTATION CTA */}
         <ConsultationCTA phenotype={pheno} />
 
         {/* DETAILED SCORES */}
@@ -1423,9 +1707,7 @@ function ResultsScreen({ tfeq, pfs, phenotypeKey, context, demo, onRetake, onBac
                     textAlign: i >= 2 ? 'right' : 'left', padding: '12px 0',
                     fontFamily: FONT_MONO, fontSize: 11, color: COLORS.muted,
                     textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 400,
-                  }}>
-                    {h}
-                  </th>
+                  }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -1434,10 +1716,10 @@ function ResultsScreen({ tfeq, pfs, phenotypeKey, context, demo, onRetake, onBac
                 ['TFEQ-R21', 'Cognitive Restraint', tfeq.CR.toFixed(1), '45 (pop.)'],
                 ['TFEQ-R21', 'Uncontrolled Eating', tfeq.UE.toFixed(1), '40 (pop.)'],
                 ['TFEQ-R21', 'Emotional Eating',    tfeq.EE.toFixed(1), '35 (pop.)'],
-                ['PFS',      'Food Available',      pfs.FA.toFixed(2),  '~2.0'],
-                ['PFS',      'Food Present',        pfs.FP.toFixed(2),  '~2.2'],
-                ['PFS',      'Food Tasted',         pfs.FT.toFixed(2),  '~2.8'],
-                ['PFS',      'Aggregate',           pfs.AGG.toFixed(2), '~2.3'],
+                ['RED-9',    'Lack of Control',     red.LC.toFixed(2),  '~2.5'],
+                ['RED-9',    'Lack of Satiation',   red.LS.toFixed(2),  '~2.3'],
+                ['RED-9',    'Preoccupation',       red.PR.toFixed(2),  '~2.4'],
+                ['RED-9',    'Aggregate',           red.AGG.toFixed(2), '~2.4'],
               ].map((row, i) => (
                 <tr key={i} style={{ borderBottom: `1px solid ${COLORS.border}` }}>
                   <td style={{ padding: '14px 0', fontSize: 14, color: COLORS.muted, fontFamily: FONT_MONO }}>{row[0]}</td>
@@ -1453,7 +1735,7 @@ function ResultsScreen({ tfeq, pfs, phenotypeKey, context, demo, onRetake, onBac
         {/* FOOTER NOTE */}
         <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 32, fontSize: 13, color: COLORS.muted, lineHeight: 1.65, maxWidth: 640 }}>
           <p style={{ margin: '0 0 12px' }}>
-            This assessment is based on the Three-Factor Eating Questionnaire\u2013R21 (Karlsson et al., 2000; de Lauzon et al., 2004) and the Power of Food Scale (Lowe et al., 2009). Both are validated self-report measures of eating behavior.
+            This assessment is based on the Three-Factor Eating Questionnaire–R21 (Karlsson et al., 2000; de Lauzon et al., 2004) and the Reward-based Eating Drive scale, 9-item version (Mason, Epel et al.). Both are validated self-report measures of eating behavior.
           </p>
           <p style={{ margin: 0 }}>
             Scores reflect a snapshot of your eating tendencies, not a clinical diagnosis. Consider retaking the assessment at 3 and 6 months into your GLP-1 treatment, and again if you taper or discontinue, to see how your profile shifts.
@@ -1465,9 +1747,9 @@ function ResultsScreen({ tfeq, pfs, phenotypeKey, context, demo, onRetake, onBac
 }
 
 function ConsultationCTA({ phenotype }) {
-  const subject = encodeURIComponent(`Behavioral consultation request \u2014 ${phenotype.name}`);
+  const subject = encodeURIComponent(`Behavioral consultation request — ${phenotype.name}`);
   const body = encodeURIComponent(
-    `Hi ${FOUNDER_NAME},\n\nI just took the Meridian assessment and I\u2019d like to book a 1:1 behavioral consultation.\n\nMy phenotype: ${phenotype.name}\n\nThank you,\n`
+    `Hi ${FOUNDER_NAME},\n\nI just took the ${BRAND_NAME} assessment and I’d like to book a 1:1 behavioral consultation.\n\nMy phenotype: ${phenotype.name}\n\nThank you,\n`
   );
   const mailto = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
 
@@ -1479,9 +1761,7 @@ function ConsultationCTA({ phenotype }) {
       borderLeft: `4px solid ${COLORS.terracotta}`,
       padding: '48px 40px',
     }}>
-      <div style={{
-        display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 48, alignItems: 'center',
-      }} className="grid-2">
+      <div className="grid-2" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 48, alignItems: 'center' }}>
         <div>
           <div style={{
             fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.2em',
@@ -1495,12 +1775,12 @@ function ConsultationCTA({ phenotype }) {
             Walk through your profile with the founder.
           </h2>
           <p style={{ fontSize: 16, lineHeight: 1.65, color: COLORS.text, margin: '0 0 24px' }}>
-            A 60-minute behavioral consultation with {FOUNDER_NAME}, PhD. We\u2019ll go through your phenotype together \u2014 the research behind your patterns, what they mean for your specific GLP-1 context, and the behavioral focus areas where the work actually lives for you.
+            A 60-minute behavioral consultation with {FOUNDER_NAME}, PhD. We’ll go through your phenotype together — the research behind your patterns, what they mean for your specific GLP-1 context, and the behavioral focus areas where the work actually lives for you.
           </p>
           <ul style={{ paddingLeft: 18, color: COLORS.text, fontSize: 15, lineHeight: 1.8, margin: '0 0 28px' }}>
             <li>Personalized interpretation of your scores by an eating-behavior scientist</li>
             <li>Discussion of your three focus areas, tailored to your medication context</li>
-            <li>Time for your specific questions \u2014 plateaus, food noise, tapering, or whatever you\u2019re sitting with</li>
+            <li>Time for your specific questions — plateaus, food noise, tapering, or whatever you’re sitting with</li>
           </ul>
           <p style={{
             fontSize: 11, color: COLORS.muted, lineHeight: 1.55, fontFamily: FONT_MONO,
@@ -1535,7 +1815,7 @@ function ConsultationCTA({ phenotype }) {
             fontFamily: FONT_SANS, fontSize: 14, fontWeight: 500,
             textDecoration: 'none', letterSpacing: '0.01em',
           }}>
-            Request a session \u2192
+            Request a session →
           </a>
           <div style={{
             fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.05em',
@@ -1551,27 +1831,23 @@ function ConsultationCTA({ phenotype }) {
 
 
 // =============================================================================
-// 6. MAIN APP
+// 8. MAIN APP
 // =============================================================================
 
 export default function App() {
   useFonts();
+  useDocumentTitle(`${BRAND_NAME} — Eating-Behavior Assessment for GLP-1 Patients`);
   const [view, setView] = useState('site'); // 'site' | 'assessment'
 
   useEffect(() => {
-    // Reset scroll when switching views.
     window.scrollTo(0, 0);
   }, [view]);
 
   return (
     <>
       <GlobalStyles />
-      {view === 'site' && (
-        <MarketingSite onStartAssessment={() => setView('assessment')} />
-      )}
-      {view === 'assessment' && (
-        <AssessmentApp onBackToSite={() => setView('site')} />
-      )}
+      {view === 'site' && <MarketingSite onStartAssessment={() => setView('assessment')} />}
+      {view === 'assessment' && <AssessmentApp onBackToSite={() => setView('site')} />}
     </>
   );
 }
