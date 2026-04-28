@@ -539,7 +539,7 @@ function Hero({ onStartAssessment, onNav }) {
           maxWidth: '17ch',
           color: COLORS.text,
         }}>
-          GLP-1 changed how you eat. <em style={{ fontStyle: 'italic', color: COLORS.forest }}>{BRAND_NAME} helps you understand why.</em>
+          GLP-1 changed how you eat. <em style={{ fontStyle: 'italic', color: COLORS.forest }}>{BRAND_NAME}<sup style={{ fontSize: '0.4em', fontStyle: 'normal', verticalAlign: 'super', marginLeft: '0.05em', fontWeight: 400 }}>™</sup> helps you understand why.</em>
         </h1>
 
         <p className="fade-up d3" style={{
@@ -948,7 +948,7 @@ function Footer() {
           fontFamily: FONT_MONO, fontSize: 11, color: COLORS.muted,
           display: 'flex', gap: 24, justifyContent: 'flex-end', flexWrap: 'wrap', letterSpacing: '0.05em',
         }}>
-          <span>© 2026 {BRAND_NAME}</span>
+          <span>© 2026 {BRAND_NAME}<sup style={{ fontSize: '0.7em', verticalAlign: 'super', marginLeft: '0.1em' }}>™</sup></span>
           <a className="nav-link" style={{ textDecoration: 'none', cursor: 'pointer' }}>Privacy</a>
           <a className="nav-link" style={{ textDecoration: 'none', cursor: 'pointer' }}>Terms</a>
           <a style={{ color: COLORS.muted, textDecoration: 'none' }} href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
@@ -1836,7 +1836,7 @@ function ConsultationCTA({ phenotype }) {
 
 export default function App() {
   useFonts();
-  useDocumentTitle(`${BRAND_NAME} — Eating-Behavior Assessment for GLP-1 Patients`);
+  useDocumentTitle(`${BRAND_NAME}\u2122 — Eating-Behavior Assessment for GLP-1 Patients`);
   const [view, setView] = useState('site'); // 'site' | 'assessment'
 
   useEffect(() => {
