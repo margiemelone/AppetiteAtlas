@@ -1,65 +1,59 @@
-# Meridian
+# Appetite Atlas
 
-An eating-behavior assessment for GLP-1 patients. Built with React + Vite.
+Web application for **Appetite Atlas LLC** — a digital eating-behavior assessment for adults taking GLP-1 medications. The assessment combines validated instruments (TFEQ-R21 and RED-9) to generate a research-grounded eating phenotype, with educational interpretation tailored to the GLP-1 patient experience.
 
----
+Live at **[appetiteatlas.health](https://appetiteatlas.health)**.
 
-## Deployment (the only thing left to do)
-
-This project is configured and build-tested. To get it live, you need two free
-accounts and one drag-and-drop. ~10 minutes total.
-
-### 1. Make a GitHub account
-Go to **github.com** and sign up. Free.
-
-### 2. Make a Vercel account
-Go to **vercel.com** and click **"Continue with GitHub"**. This links the two
-accounts so Vercel can read your code. Also free.
-
-### 3. Put this code on GitHub
-
-On GitHub:
-1. Click the green **New** button (top-left, or the **+** icon top-right → New repository)
-2. Name it `meridian` (or whatever you like)
-3. Leave it **Public** (Private also works but Public is simpler)
-4. Click **Create repository**
-5. On the empty repo page, click the link **"uploading an existing file"**
-6. Drag every file and folder from this project's folder into the upload box
-   *(yes, including the `src` folder — GitHub handles nested folders correctly)*
-7. Scroll down, click **Commit changes**
-
-### 4. Deploy on Vercel
-
-On Vercel:
-1. Click **Add New → Project**
-2. Find your `meridian` repo in the list, click **Import**
-3. Don't change any settings — Vercel auto-detects Vite
-4. Click **Deploy**
-5. Wait ~60 seconds
-
-Vercel will give you a URL like `meridian-xyz.vercel.app`. That's your live site.
-
-### 5. Updating later
-
-Anytime you want to change something (your bio, the headline, etc.), edit the
-file on GitHub directly using its web editor. Vercel auto-redeploys within a
-minute. No tools to install.
+Built with React + Vite, deployed on Vercel, DNS managed through Cloudflare.
 
 ---
 
-## What's still left in the code (search and replace)
+## Project structure
 
-These are placeholders. Open `src/App.jsx` in GitHub, click the pencil icon to
-edit, change the values, commit. The site updates itself.
+```
+appetiteatlas/
+├── index.html              # HTML entry point + page metadata
+├── package.json            # Dependencies & build scripts
+├── vite.config.js          # Build configuration
+├── src/
+│   ├── App.jsx             # Main application — marketing site + assessment
+│   ├── main.jsx            # React entry point
+│   └── founder.jpg         # Founder photo (About section)
+└── README.md               # This file
+```
 
-| Placeholder         | What it is                              | Where         |
-|---------------------|------------------------------------------|---------------|
-| `FOUNDER_NAME`      | Your real name                           | Top of file   |
-| `CONTACT_EMAIL`     | Email for waitlist/consultation requests | Top of file   |
-| `FOUNDER_BIO`       | Three placeholder paragraphs about you   | About section |
-| Photo placeholder   | The gradient rectangle in the About area | About section |
+The entire site lives in `src/App.jsx`. It contains:
 
-## Local development (optional, only if you want to test changes before pushing)
+- The marketing site (Hero, Gap, Approach, Assessment, About, Waitlist, Footer)
+- The assessment flow (Context → Satisfaction → TFEQ → RED-9 → Demographics → Results)
+- Seven eating-phenotype interpretations (Homeostatic, Cognitive Restrainer, Effortful Restrainer, Emotional Eater, Reward-Driven Eater, Multi-Driver, Mixed)
+- The post-results behavioral consultation CTA
+
+Brand and copy constants are at the top of `App.jsx`:
+
+| Constant         | Where it lives in the file    | What it controls                          |
+|------------------|--------------------------------|-------------------------------------------|
+| `BRAND_NAME`     | Line ~38                       | Brand name everywhere on the site         |
+| `FOUNDER_NAME`   | Line ~39                       | Founder name (About section, consultation)|
+| `CONTACT_EMAIL`  | Line ~40                       | Email used in mailto links                |
+
+## Deployment
+
+This project is deployed automatically by Vercel. Any commit to the `main` branch triggers a rebuild and redeploy within ~60 seconds.
+
+### Updating content
+
+1. Open `src/App.jsx` on GitHub
+2. Click the pencil icon to edit
+3. Make your changes
+4. Scroll down → "Commit changes"
+5. Wait ~60 seconds → refresh appetiteatlas.health (incognito)
+
+### Updating the founder photo
+
+Replace `src/founder.jpg` with a new image of the same name. The code references the filename, so as long as the new file is named `founder.jpg`, no code change is needed.
+
+## Local development
 
 ```bash
 npm install
@@ -67,3 +61,20 @@ npm run dev
 ```
 
 Opens at http://localhost:5173
+
+## Production build
+
+```bash
+npm run build
+```
+
+Vercel runs this automatically on every commit.
+
+---
+
+## Legal & compliance notes
+
+- The TFEQ-R21 and RED-9 items in the codebase are placeholder approximations of validated wording. A prototype banner is displayed across all assessment screens for academic honesty. Replace with verified item wording from the licensors before any paid release.
+- The post-results consultation tier is positioned as a *behavioral consultation* — educational, not nutrition counseling or medical nutrition therapy. The wording in the consultation card was drafted to stay clear of NJ's Dietitian/Nutritionist Licensing Act. Do not change this language without a licensed healthcare-attorney review.
+- Appetite Atlas LLC is registered in New Jersey. Sole member: Margaret Melone, PhD.
+- "Appetite Atlas™" is used as a common-law trademark on the site. USPTO registration not yet filed.
