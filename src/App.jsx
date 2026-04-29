@@ -312,6 +312,269 @@ const PHENOTYPES = {
   },
 };
 
+// -----------------------------------------------------------------------------
+// PHENOTYPE_STRATEGIES — DRAFT v1 content for the paid PDF tier.
+// Currently shown with a "DRAFT" banner. Pending Margie's review and revision.
+// Structure mirrors the document architecture in the strategy_content_drafts.md.
+// -----------------------------------------------------------------------------
+
+// Map "biggest frustration" answer values to short keys used to look up the
+// situational strategy paragraph for each phenotype. Keep keys stable; the
+// labels in the assessment can change without breaking lookups.
+const FRUSTRATION_KEYS = {
+  'Nausea or GI side effects': 'nausea',
+  'Cost or insurance hassles': 'cost',
+  'Plateaus or slow progress': 'plateau',
+  'Fear of stopping the medication': 'discontinue',
+  'Social situations and eating out': 'social',
+  'Fatigue or low energy': 'fatigue',
+  'Food not feeling enjoyable anymore': 'anhedonia',
+  'Feeling judged for taking it': 'stigma',
+  'None of these — it’s been smooth': 'none',
+};
+
+const PHENOTYPE_STRATEGIES = {
+  homeostatic: {
+    opening: [
+      'If you scored as Homeostatic, your eating patterns sit close to where the population averages out — moderate restraint, low uncontrolled eating, low emotional eating, low reward-driven drive. This isn’t "perfect." It’s a profile in which your hunger and fullness signals tend to do the work they evolved to do, without strong pushes from emotional eating, food preoccupation, or rigid restriction.',
+      'What this means in practical terms: when you’re hungry, you tend to know it. When you’re full, you tend to feel it. Food has a place in your life, but isn’t louder than the rest of it.',
+      'People with this profile sometimes ask whether GLP-1 medications were the right choice for them, since the typical "food noise" experience is less prominent in their pre-treatment baseline. That’s a real question worth sitting with — and it’s also worth knowing that GLP-1s can support weight regulation through mechanisms beyond just quieting cravings.',
+    ],
+    glp1Context: [
+      'Because your baseline reward-driven eating drive is moderate, you may notice a less dramatic "food noise reduction" than friends or online voices have described. This can be quietly destabilizing — you went into the medication expecting one experience and got a different one. That doesn’t mean the medication isn’t working for you. It means the work the medication is doing for you is different from what gets the most attention online.',
+      'What GLP-1s tend to do for Homeostatic eaters: gentle appetite reduction, slower gastric emptying that extends fullness, modest reduction in cue-driven snacking. Less dramatic than the "appetite shut off" experience, but real.',
+      'One thing to watch: because your relationship with food was relatively functional before, you may be more vulnerable than other phenotypes to under-eating on a GLP-1. The medication reduces appetite uniformly. People who needed that reduction the most adapt easily; people who had decent appetite regulation already can drift into eating less than their body actually needs, especially during the dose-escalation phase.',
+    ],
+    focusAreas: [
+      { title: 'Adequate intake, even when hunger is muted.', body: 'Build a default eating rhythm (regular meal timing, protein at each meal) you can follow even on days when nothing sounds appetizing. The medication shouldn’t be doing the entire work of "deciding when to eat" for you.' },
+      { title: 'Strength-preserving habits.', body: 'Weight loss on any modality, including GLP-1s, can come partly from muscle loss without intentional resistance training. For Homeostatic eaters, who often weren’t significantly under-active before, the habit may need to increase rather than start from zero.' },
+      { title: 'Recognizing a plateau as data, not failure.', body: 'Because you don’t have the baseline reward-driven dynamics that sometimes mask a plateau, you’ll likely feel one clearly. Treat it as information about the medication’s relationship to your body rather than as a personal shortcoming.' },
+    ],
+    situations: {
+      plateau: 'Plateaus are expected during GLP-1 treatment, often around the 4–6 month mark. For Homeostatic eaters, plateaus typically reflect adaptive metabolic responses rather than behavioral drift. The behavioral question worth asking: have your portions and food choices remained stable, or has the muted hunger signal allowed habits to shift in ways you haven’t fully tracked? A few days of careful self-observation often surfaces patterns that aren’t visible day-to-day.',
+      nausea: 'Nausea is the most common reason Homeostatic eaters under-eat on GLP-1s. The instinct to skip a meal because nothing sounds appealing can compound — once you’ve gone several hours without eating, the next meal feels even more aversive. Counter-intuitively, eating something small and bland on a regular cadence (every 3–4 hours) often reduces nausea more than waiting for it to pass.',
+      cost: 'Out of scope for behavioral guidance — but worth knowing: the eating-behavior work you do during treatment is what protects against weight regain if you eventually need to discontinue. The behavioral foundations are arguably more valuable than the medication itself.',
+      social: 'Homeostatic eaters tend to navigate social eating relatively easily, but reduced appetite can create awkwardness — leaving food on plates, declining seconds, eating less than companions. Most people don’t notice or care. The discomfort is usually internal, not interpersonal.',
+      fatigue: 'Worth tracking whether you’re consistently meeting your protein and caloric needs. Homeostatic eaters often under-eat on GLP-1s without noticing, and fatigue is the first warning sign.',
+      anhedonia: 'This can be a side effect of dramatically reduced appetite — food becomes fuel rather than pleasure. For someone whose pre-treatment relationship with food was already balanced, the loss of food enjoyment can feel like a meaningful subtraction from quality of life. Worth raising with your prescriber if it persists.',
+      discontinue: 'Homeostatic eaters often fear discontinuation less than other phenotypes, because the medication isn’t suppressing patterns that would resurface dramatically. But weight regain after discontinuation is real and well-documented. The behavioral foundations matter most here.',
+      stigma: 'Worth knowing that the cultural conversation about GLP-1s often assumes a profile (intense food noise, severe overeating) that doesn’t match yours. Your reasons for being on the medication are your own.',
+      none: 'A genuinely smooth experience on a GLP-1 is more common for Homeostatic eaters than for any other phenotype. Worth using this stable phase to build the habits that will serve you regardless of medication status.',
+    },
+    continueTaper: [
+      'The Homeostatic profile is stable — people in this category tend to maintain their pattern over time rather than shifting categories. The most important behavioral work for you isn’t fixing a problematic pattern; it’s reinforcing the baseline you already have so it survives the various stressors that show up in life.',
+      'If and when you taper, your phenotype works in your favor: the underlying patterns the medication was supporting are mostly the patterns you’d have anyway. The risk during taper is regaining the modest appetite and cue-driven behaviors that the medication was muting. Building strong meal-timing habits and protein-forward eating now means those defaults stay in place when the pharmacology changes.',
+    ],
+    reflection: 'What did you notice about your eating before the medication that you’d want to either preserve or strengthen, regardless of what happens with the prescription?',
+  },
+
+  cognitive_restrainer: {
+    opening: [
+      'If you scored as a Cognitive Restrainer, your standout pattern is high cognitive restraint relative to your other dimensions. Cognitive restraint, in eating-behavior research, refers to the ongoing mental effort of monitoring, controlling, and rule-setting around food. It’s not the same as eating less. It’s the work of eating intentionally — and for some people, it’s a significant amount of work.',
+      'This isn’t inherently negative. Modest cognitive restraint is associated with healthier eating patterns. But high cognitive restraint, especially without strong internal hunger and fullness signals, can become its own load — a constant low-level mental cost that runs in the background of your day.',
+      'What’s worth noticing: your uncontrolled eating and emotional eating scores are likely lower. The restraint is working in the sense of preventing those patterns. The question is whether it’s costing you something to maintain.',
+    ],
+    glp1Context: [
+      'GLP-1 medications can be transformative for Cognitive Restrainers — but in a different way than for other phenotypes. The medication does some of the regulatory work that you’ve been doing manually. The mental effort of "should I eat this?" gets quieter because the bodily drive to eat got quieter.',
+      'Some Cognitive Restrainers describe this as relief. The food rules that were running constantly now run less. Some describe it as disorienting — the structure of vigilance was familiar, even if it was effortful, and its absence can feel uncertain.',
+      'A subtler dynamic to watch: cognitive restraint can become more rigid on a GLP-1, not less. With reduced appetite making it easy to skip meals, the rules can shift from "monitor what I eat" to "see how little I can eat." This drift is worth tracking carefully — it’s one of the documented patterns where GLP-1 treatment can intersect with disordered eating tendencies.',
+    ],
+    focusAreas: [
+      { title: 'Letting some rules dissolve.', body: 'The medication is doing regulatory work that your rules were doing. Notice which of your food rules you can let soften without anything bad happening. This is data, not loss.' },
+      { title: 'Eating to a baseline, not a minimum.', body: 'When appetite is low, "what’s the least I can eat" becomes a tempting question. Replace it with "what’s a sensible base?" — typically defined by protein, regularity, and energy, not by calories.' },
+      { title: 'Rebuilding interoceptive trust.', body: 'Years of strong cognitive control can dampen attention to hunger and fullness signals. The reduced appetite of GLP-1s makes this even harder. Practicing noticing — what does mild hunger feel like? what does comfortable fullness feel like? — is foundational work that pays off when you eventually taper.' },
+    ],
+    situations: {
+      plateau: 'Cognitive Restrainers often interpret plateaus as a failure of their effort, even when the body’s adaptive response would explain them entirely. Worth examining: the plateau may be an opportunity to reduce cognitive load (loosening some rules) rather than increase it (more vigilance, more tracking, more control).',
+      nausea: 'For Cognitive Restrainers, nausea can paradoxically feel reassuring — the medication is "working" in a way that aligns with food-restriction goals. This intersection is worth noticing. Severe or persistent nausea is a side effect that needs attention from your prescriber, not a feature to be optimized around.',
+      cost: 'Out of scope for behavioral guidance.',
+      social: 'Cognitive Restrainers often have well-developed social-eating strategies (specific orders, fallback plans, "safe" choices). On a GLP-1, when appetite is much lower, those strategies can become obstacles — eating less than you ordered, leaving food, declining shared dishes. Worth experimenting with looser social-eating rules when the medication is doing the regulatory work.',
+      fatigue: 'A reliable signal to check whether your "eat enough" floor has drifted lower than it should be. Cognitive Restrainers are particularly susceptible to this on GLP-1s because reduced appetite plus restraint mindset can compound.',
+      anhedonia: 'Cognitive Restrainers often had a fraught relationship with food enjoyment before the medication — pleasure was sometimes treated with suspicion. The medication reducing food’s pleasure can feel like alignment with long-held rules. Worth reflecting on whether enjoyment is something you want back, even partially.',
+      discontinue: 'A common and reasonable fear for Cognitive Restrainers, who often experienced the medication as freeing them from constant food management. The behavioral work during treatment is precisely what makes tapering more livable — practicing eating without the medication doing all the regulatory work.',
+      stigma: 'Cognitive Restrainers sometimes carry shame about taking a medication that "does the work for them" — as if effortful restriction were morally superior. Effort isn’t inherently virtuous, particularly when it’s costing you peace.',
+      none: 'Many Cognitive Restrainers experience GLP-1s as quietly liberating without drama. Worth using this phase to build the trust-in-bodily-signals work that will serve you long-term.',
+    },
+    continueTaper: [
+      'The Cognitive Restrainer profile shifts in interesting ways during long GLP-1 treatment. Some people see their restraint scores drop because the medication is doing the regulatory work — they no longer need the rules. Others see restraint rise because they’ve added new rules around the medication itself. Tracking which direction you’re drifting is useful.',
+      'For tapering, the meaningful work is rebuilding internal signals (hunger, fullness, satisfaction) so that when the medication’s effect lessens, you have something other than rules to fall back on. Rules require effort. Internal signals require practice but then run in the background.',
+    ],
+    reflection: 'Which of your current food rules are doing real work for you, and which are running on autopilot from a previous chapter of your life?',
+  },
+
+  effortful_restrainer: {
+    opening: [
+      'If you scored as an Effortful Restrainer, your profile shows high cognitive restraint and meaningfully elevated uncontrolled or reward-driven eating. This combination is one of the most-studied and most-frustrating patterns in the eating-behavior literature: significant mental effort to control eating, paired with periods where that control breaks down.',
+      'Researchers sometimes call this disinhibited restraint — restraint that doesn’t fully hold. Importantly, the breakdown isn’t a character failure. It’s a documented pattern, well-replicated across studies. The harder you push the restriction, the more the rebound builds. Long-term, restraint of this kind correlates with weight cycling rather than weight stability.',
+      'What this means in practical terms: the strategy of "trying harder to control eating" hasn’t been working as well as you’d hoped, and you may already know that. You came to a GLP-1 partly because the willpower model wasn’t sustainable.',
+    ],
+    glp1Context: [
+      'Effortful Restrainers often experience GLP-1 treatment as a meaningful shift. The medication reduces the bodily drive that the restraint was struggling to hold back. The pendulum dynamic — rigid control followed by breakdown — gets dampened from the biological side, not just the behavioral side.',
+      'This is the population for whom GLP-1s often feel transformative. Reports of "I never knew it could feel this quiet" come disproportionately from this phenotype.',
+      'But there’s a real risk worth naming. The success of medication-driven restraint can mask underlying patterns rather than resolve them. If the only thing changing is the bodily drive, the cognitive habits — the rules, the all-or-nothing framing, the moral language around food — stay intact. When you eventually taper, those habits resurface in a body that’s regained its hunger drive. The pendulum dynamic returns.',
+      'The behavioral work during treatment is the work of changing the cognitive patterns, not just letting the medication do them for you.',
+    ],
+    focusAreas: [
+      { title: 'Loosening the all-or-nothing structure.', body: 'Effortful Restrainers often operate in binary — "on plan" or "off plan." The medication’s quieting effect creates a window to practice gradients: choices that aren’t perfect, that don’t trigger compensation, that just happen and continue.' },
+      { title: 'Decoupling food from morality.', body: 'Years of restrictive effort tend to load food with moral weight. "Good," "bad," "earned," "deserved." This language runs in the background even when conscious thought is elsewhere. Naming it when it shows up doesn’t make it disappear, but it weakens its grip.' },
+      { title: 'Practicing what comes after a slip.', body: 'The slip-shame-spiral pattern is the engine of weight cycling. The medication will reduce slips, but it won’t fix the spiral that follows them. Rehearsing a different response — neutral observation, return to the next meal, no compensation — is the work that lasts beyond pharmacology.' },
+    ],
+    situations: {
+      plateau: 'Effortful Restrainers are at high risk of interpreting plateaus as a signal to increase restraint — tighter rules, more tracking, more control. This is exactly the pendulum dynamic. The behaviorally protective response is the opposite: maintain consistency, don’t tighten, let the body’s adaptive response work itself out without your effort feeding it.',
+      nausea: 'Worth watching whether nausea-driven undereating is being framed in your mind as "finally getting on track" rather than as a side effect to manage. The internal logic that conflates illness with progress is a flag worth raising in any consultation.',
+      cost: 'Out of scope for behavioral guidance.',
+      social: 'A historic minefield for this phenotype — social eating often triggered the breakdown side of the cycle. On a GLP-1, social eating may feel newly manageable, even pleasant. Worth noticing the new experience consciously rather than letting it be invisible.',
+      fatigue: 'A reliable warning sign that the restraint side of the pattern has tightened more than the medication accounts for.',
+      anhedonia: 'Complicated for this phenotype. Some Effortful Restrainers welcome reduced food enjoyment because it aligns with restriction goals. Others find that the loss of enjoyment removes the only positive relationship they had with food, leaving only management. The honest answer about which experience you’re having is worth noting — it shapes what kind of long-term relationship you’re building.',
+      discontinue: 'The most legitimate fear in this phenotype. Tapering without behavioral change does often return people to the pendulum pattern. The fear is rational. The response isn’t "stay on the medication forever" — it’s "use this window to actually build different patterns."',
+      stigma: 'The cultural narrative of "you should be able to do this with willpower" is exactly the framework that’s caused harm to this phenotype for years. Letting it go is part of the work.',
+      none: 'A surprisingly smooth experience for an Effortful Restrainer is informative — possibly the medication is doing significant work that masks underlying patterns. Worth using this stable phase to do the cognitive-pattern work proactively rather than reactively.',
+    },
+    continueTaper: [
+      'The Effortful Restrainer profile is the one where behavioral work during treatment matters most for long-term outcomes. The medication can suppress the pendulum without changing it. Real change happens in cognitive patterns: the language you use about food, the response after a slip, the structure of your daily eating, the role of restraint in your identity.',
+      'Tapering for this phenotype almost always benefits from clinical support — not because tapering is medically dangerous, but because the psychological transition is the hardest part. The behavioral changes you make during treatment determine what tapering feels like.',
+    ],
+    reflection: 'If the medication didn’t exist and never had, what would you want to be different about your relationship with food than it was a year ago? That’s the work the medication is creating space for, not replacing.',
+  },
+
+  emotional_eater: {
+    opening: [
+      'If you scored as an Emotional Eater, your standout dimension is high emotional eating: a consistent pattern of food serving emotional functions — soothing stress, marking transitions, filling boredom, accompanying loneliness — beyond pure hunger. This is one of the most prevalent eating phenotypes and one of the most misunderstood.',
+      'In the research literature, emotional eating isn’t a moral category. It’s a learned pattern, often beginning in childhood, in which food becomes one of a person’s reliable tools for regulating emotional state. It works — that’s why it persists. Other tools may not have been available, or food was the most accessible.',
+      'What’s worth knowing: emotional eating is not the same as binge eating, though they sometimes co-occur. Emotional eating is about the function food serves, not the volume.',
+    ],
+    glp1Context: [
+      'For Emotional Eaters, GLP-1 medications often produce a particular and sometimes destabilizing experience: the eating impulse is reduced, but the emotion that triggered it is not. Food has been doing emotional regulatory work, and now that tool is less available.',
+      'Some people describe this as relief — finally seeing the emotion clearly without immediately routing it through food. Others describe it as harder than they expected — the emotion is still there, but the regulatory mechanism is gone, and they don’t yet have a replacement.',
+      'This is one of the most important dynamics in GLP-1 treatment. The medication doesn’t address the underlying emotional regulation need. It removes one of the tools you’d been using to meet that need. What you build in its place — or whether you build anything — is a meaningful determinant of how the experience goes long-term.',
+    ],
+    focusAreas: [
+      { title: 'Building a non-food emotional toolkit.', body: 'Identifying what emotions food has been doing work for, and developing two or three alternative responses for each. Not as a moral upgrade, but as practical capacity-building during a window when the food response is less available.' },
+      { title: 'Distinguishing emotional hunger from physical hunger.', body: 'This is well-described work in eating-behavior literature, and the GLP-1’s quieting of physical hunger actually makes the distinction easier to practice. When physical hunger is muted, anything that feels like hunger has a higher likelihood of being emotional.' },
+      { title: 'Sitting with the emotion instead of resolving it.', body: 'Often the emotion food was managing was simply intolerable. The work is increasing your tolerance for the emotion itself — not finding a perfect non-food substitute, but learning that the emotion can be there without requiring action. This is slow work, but it’s the work that lasts.' },
+    ],
+    situations: {
+      plateau: 'For Emotional Eaters, plateaus often correspond with returning emotional eating patterns — the medication’s effect on appetite is plateauing while the underlying emotional regulation need is still active. Worth examining honestly whether food has been quietly returning to its emotional role. Not as a shame exercise — as data.',
+      nausea: 'Nausea can intersect oddly with emotional eating. Some Emotional Eaters report that nausea makes emotional eating less accessible (you literally don’t want to eat) but the underlying emotional state is now harder to soothe. The work is the same: building non-food tools.',
+      cost: 'Out of scope for behavioral guidance.',
+      social: 'Emotional Eaters often had complex relationships with social eating — sometimes the emotion was social anxiety, and food was the management strategy. On a GLP-1, social eating may feel different. Worth noticing what’s still hard and whether eating was masking the difficulty.',
+      fatigue: 'Worth checking whether under-eating has become an inadvertent way to manage emotional state — restriction itself can be a regulatory strategy, especially for someone who used food to regulate previously.',
+      anhedonia: 'Particularly meaningful for Emotional Eaters, because food was tied to comfort and pleasure in deep ways. The reduction can feel like a real loss — not just a side effect. Acknowledging the loss is itself part of the work.',
+      discontinue: 'A reasonable fear for this phenotype. The medication has been holding back a pattern that hasn’t been resolved underneath. The behavioral work during treatment determines whether tapering is manageable.',
+      stigma: 'Emotional Eaters often carry shame about food in ways that other phenotypes don’t. The medication can become another thing to feel ashamed about. Worth distinguishing the medication itself from the underlying emotional dynamic — they’re different things, and the shame is usually about the latter.',
+      none: 'A genuinely smooth experience for an Emotional Eater often means the underlying emotional regulation work is happening through other means — therapy, relationships, life circumstances. Worth taking inventory of what’s actually doing that work.',
+    },
+    continueTaper: [
+      'For Emotional Eaters, tapering is most successful when accompanied by therapeutic support that addresses the emotional regulation patterns underneath. The medication doesn’t fix the underlying dynamic; it changes which tool is available. If the alternative tools have been built during treatment, tapering can be smooth. If they haven’t, the pattern returns.',
+      'A specific worth-flagging concern: for some Emotional Eaters, GLP-1s intersect with disordered eating patterns in ways that need clinical attention. Restriction-based eating disorders can co-occur with emotional eating in complex ways, and medication that reduces appetite can shift the pattern rather than resolve it. If anything in this phenotype description is resonating in a way that feels alarming, talking to a clinician (a therapist or eating-disorder-aware physician) is meaningfully more useful than any digital tool.',
+    ],
+    reflection: 'What was food doing for you emotionally before the medication, and what is doing that work now?',
+  },
+
+  reward_driven: {
+    opening: [
+      'If you scored as a Reward-Driven Eater, your standout dimension is high reward-based eating drive: a stronger-than-average pull toward food’s pleasure, novelty, and intensity, often with some difficulty stopping once you’ve started, persistent food-related thoughts even when you’re not hungry, and a sense that food has more "volume" in your mental life than it does for other people.',
+      'This is the phenotype most directly addressed by GLP-1 medications. The mechanisms by which these drugs reduce "food noise" are most pronounced for people whose pre-treatment baseline included this kind of reward-driven dynamic.',
+      'What’s worth knowing: reward-driven eating isn’t a moral failing or a lack of self-control. The neurobiology is real and well-described. Some people’s reward systems orient more strongly toward food than others, for reasons that include genetics, developmental experiences, and current life context. The pattern you’ve experienced isn’t a personal weakness — it’s a description of how your particular brain interacts with food.',
+    ],
+    glp1Context: [
+      'The dramatic "food noise reduction" experience that gets most of the cultural attention around GLP-1s is largely the experience of Reward-Driven Eaters. The medication acts on the reward circuitry that was running loud, and many people describe a striking quieting — first time in years that food isn’t constantly in the foreground.',
+      'This experience, while welcome, is also disorienting for some people. Food’s prominence in your mental life had been part of how you organized your day, planned your schedule, and even constructed pleasure. When that volume drops, other things become more visible — including emotions, social discomfort, or boredom that food had been crowding out.',
+      'The behavioral question for Reward-Driven Eaters during GLP-1 treatment isn’t usually "how do I eat less?" — the medication is doing that. It’s "what fills the space that food was occupying?" This is meaningful work, and the answers are individual.',
+    ],
+    focusAreas: [
+      { title: 'Designing the post-food-noise version of your day.', body: 'Many Reward-Driven Eaters discover that their daily routines were partly built around food — meal anticipation, snack pauses, post-meal pleasure. Building intentional alternative structures (movement, social connection, creative work) helps the medication’s effect become a foundation rather than a void.' },
+      { title: 'Distinguishing pleasure from reward-drive.', body: 'Reward-driven eating isn’t always pleasurable in the conscious-experience sense — sometimes it’s compulsive without being satisfying. The medication may reduce both, or one more than the other. Reclaiming food pleasure (savoring, attention, satisfaction) without reactivating reward-drive is delicate work, but it’s possible.' },
+      { title: 'Planning for the long game.', body: 'Reward-driven eating tends to return when GLP-1 medications are tapered — the underlying neurobiology hasn’t changed, only the pharmacology has. Building habits during treatment that aren’t dependent on medication-quieted reward (regular eating cadence, environmental design, sensory and creative outlets) is what protects against the rebound.' },
+    ],
+    situations: {
+      plateau: 'For Reward-Driven Eaters, plateaus often coincide with the return of subtle food noise — not the dramatic levels of pre-treatment, but a low-grade rumble that wasn’t there during the early honeymoon period. Pay attention to whether your relationship with food has been shifting back, even slightly. The plateau and the noise are usually connected.',
+      nausea: 'Nausea can be paradoxically helpful for Reward-Driven Eaters early in treatment — food becomes less appealing precisely when reduced appeal is part of the goal. Medium-term, persistent nausea is a side effect to address, not optimize around.',
+      cost: 'Out of scope for behavioral guidance.',
+      social: 'A new experience for many Reward-Driven Eaters. Food contexts that used to be charged — buffets, dessert menus, holiday meals — feel different now. Some people describe it as "finally being able to be present in the conversation instead of preoccupied by the food." Worth noticing.',
+      fatigue: 'Worth tracking. Reward-Driven Eaters who lose their previous food-focused eating cadence sometimes drift into under-eating that creeps up over weeks rather than appearing suddenly.',
+      anhedonia: 'A common and meaningful change for Reward-Driven Eaters. The intense food pleasure that was characteristic pre-treatment is often the pleasure most affected by the medication. Some welcome the change. Others find that food has shifted from a source of significant pleasure to something flat and functional. Both responses are real. Worth reflecting on whether the shift is something you want partially reversed, and whether non-food pleasures have grown to fill the gap.',
+      discontinue: 'The most pronounced fear in this phenotype, and the most legitimate. The reward-driven pattern is largely held back by the medication; behavioral work doesn’t fully replace it. Tapering with this phenotype almost always benefits from gradual dose reduction and clinical support.',
+      stigma: 'The cultural conversation about GLP-1s often frames the medication as a "shortcut" — an idea that misunderstands what’s happening neurobiologically for Reward-Driven Eaters. The medication is doing physiological work that willpower cannot do, on patterns that aren’t moral failings.',
+      none: 'A smooth experience is one of the most common reports from Reward-Driven Eaters on GLP-1s, especially in the first 3–6 months. Worth using this honeymoon to do the structural work — habits, environment, alternative pleasures — that protects long-term.',
+    },
+    continueTaper: [
+      'The Reward-Driven Eater profile is the phenotype most likely to return to baseline patterns after tapering, because the underlying neurobiology that produces the pattern hasn’t changed. This isn’t reason to stay on the medication forever — but it is reason to be intentional about what you’re building during treatment, and to consult with your prescriber about taper strategies if and when discontinuation is the goal.',
+      'Many Reward-Driven Eaters benefit from staying on a maintenance dose long-term rather than fully tapering. This is a clinical conversation, not a behavioral one — but the behavioral work during treatment is what makes either path more livable.',
+    ],
+    reflection: 'What did food noise cost you, and what would you do with the mental space if it stayed quiet?',
+  },
+
+  multi_driver: {
+    opening: [
+      'If you scored as a Multi-Driver Profile, your assessment shows elevated scores in multiple dimensions simultaneously — typically some combination of emotional eating, reward-driven eating, and uncontrolled eating, often with high cognitive restraint trying to manage them. This is one of the most complex phenotypes and also one of the most common in adults seeking GLP-1 treatment.',
+      'What this means: your eating isn’t driven by one clear pattern. It’s shaped by several interacting forces. Stress can trigger emotional eating, which can interact with reward-driven cravings, which can lead to uncontrolled episodes, which can prompt restrictive responses. The patterns reinforce each other.',
+      'This complexity has typically made traditional weight management difficult. Approaches that target a single dimension — willpower, restriction, cognitive behavioral therapy for emotional eating — only address part of the picture for you.',
+    ],
+    glp1Context: [
+      'GLP-1 medications often produce significant initial improvement for Multi-Driver phenotypes because the medication addresses the biological substrate that connects multiple patterns. Reduced appetite quiets reward-driven cravings; reduced cravings interrupt the loop between emotional eating and uncontrolled episodes; calmer eating reduces the need for compensatory restraint.',
+      'This can feel transformative. People in this phenotype often describe a "first time in years" experience.',
+      'The complexity returns when patterns reassert themselves at different rates. Reward-driven eating may quiet first; emotional eating may stay more intact. Uncontrolled eating episodes may reduce dramatically while emotional regulation needs remain active and start showing up in other ways. The pattern doesn’t disappear — it changes shape.',
+      'For Multi-Driver phenotypes, the behavioral work during treatment is essentially a careful sorting process: which of these patterns is the medication actually addressing, and which are still active under the surface?',
+    ],
+    focusAreas: [
+      { title: 'Tracking which dimension is loudest week-to-week.', body: 'Because multiple patterns are active, the dominant driver changes over time. Knowing whether this week’s challenge is emotional, reward-driven, or restraint-related determines what response is useful.' },
+      { title: 'Avoiding the pivot to a single explanation.', body: 'A common trap for Multi-Driver phenotypes during GLP-1 treatment is collapsing the complexity into one story — "I’m an emotional eater," "I have food addiction," "I have no self-control." None of these single stories is fully accurate. Holding the complexity, even when it’s harder, leads to more useful responses.' },
+      { title: 'Building support that matches the complexity.', body: 'Multi-Driver phenotypes often benefit from a combination of supports rather than any single one — therapeutic work for emotional patterns, behavioral coaching for habits, medical management for the medication, and possibly specialist consultation for any binge or disordered eating dimensions if those are present.' },
+    ],
+    situations: {
+      plateau: 'For Multi-Driver phenotypes, plateaus often signal that one of the dimensions has reasserted itself. The behavioral question is which one — reward-driven creep, emotional regulation needs, or compensatory dynamics. The plateau itself is less informative than what’s underneath it.',
+      nausea: 'Nausea management is similar across phenotypes, but for Multi-Driver phenotypes there’s a specific dynamic worth flagging: when nausea reduces eating dramatically, the multiple drivers can collapse into restriction in ways that look like progress but are unstable.',
+      cost: 'Out of scope for behavioral guidance.',
+      social: 'Often the most complex situation for Multi-Driver phenotypes pre-treatment, because multiple drivers (emotional, reward, uncontrolled) all activate at once. On a GLP-1, social eating may feel newly manageable — worth noticing what’s actually changed and what hasn’t.',
+      fatigue: 'A common and complex signal in this phenotype. Could indicate under-eating, could indicate the medication’s general effect, could indicate that the unaddressed dimensions are demanding cognitive resources. Worth investigating rather than attributing to a single cause.',
+      anhedonia: 'For Multi-Driver phenotypes, the loss of food pleasure can be particularly disorienting because food was serving multiple functions. The medication may have reduced the reward dimension, but the emotional or social functions of food don’t have direct replacements.',
+      discontinue: 'A reasonable and common fear in this phenotype. The medication is addressing biological substrate for multiple patterns; tapering returns those patterns to their pre-treatment dynamics unless behavioral work has changed them.',
+      stigma: 'Multi-Driver phenotypes often have particularly long histories of struggle with eating, including failed previous interventions. The cultural narrative that "this should be solvable with willpower" has likely caused significant harm over time. Letting that narrative go is part of the work.',
+      none: 'A smooth experience for a Multi-Driver phenotype usually indicates the medication is doing significant work simultaneously on multiple drivers. Worth using this stable phase for sorting work — understanding which of your patterns the medication is addressing and which may still be running under the surface.',
+    },
+    continueTaper: [
+      'The Multi-Driver Profile is the phenotype where coordinated care matters most. Solo behavioral work — even excellent solo behavioral work — usually isn’t enough because the complexity exceeds what one practitioner or one resource can address. Tapering is best approached with support that matches the complexity: medical, behavioral, possibly therapeutic.',
+      'There’s no rush. Multi-Driver phenotypes often do well staying on lower maintenance doses for extended periods rather than aggressively tapering. This is a clinical conversation worth having with your prescriber.',
+    ],
+    reflection: 'If your eating wasn’t driven by one thing but by several, what would you want to learn about each of them while the medication is creating space?',
+  },
+
+  mixed: {
+    opening: [
+      'If you scored as a Mixed Profile, your scores don’t show a single dominant pattern, but they also don’t fall in the homeostatic range across all dimensions. You may have moderate scores across multiple dimensions, or unusual combinations that don’t match the more common phenotypes.',
+      'This is the phenotype that’s hardest to characterize in a brief profile, and that’s part of the data. Mixed profiles often correspond with one of several situations: people whose eating patterns shift significantly with life context, people in transition phases (recently started medication, recovering from a previous pattern, in significant life change), or people whose unique mix of patterns reflects particular personal history.',
+      'What this means: any general guidance for the standard phenotypes will be partially right and partially wrong for you. The most useful work is figuring out which parts apply.',
+    ],
+    glp1Context: [
+      'For Mixed Profiles on a GLP-1, the experience varies more than for any other phenotype. Some people find significant relief. Others find that the medication addresses dimensions that weren’t their primary issue. Still others find that their pattern shifts over time on the medication in ways that move them between phenotype categories.',
+      'The honest answer is: a single phenotype-based document can’t tell you with high confidence what your experience will be. What it can do is give you frames to test against your actual experience.',
+      'The most useful posture for a Mixed Profile during GLP-1 treatment is empirical — track your actual experience, notice which patterns shift and which persist, and adjust your approach based on data rather than category.',
+    ],
+    focusAreas: [
+      { title: 'Self-observation as a primary tool.', body: 'For Mixed Profiles, generic recommendations are less useful than careful attention to your own patterns. A short journal or assessment retake at 3 and 6 months can reveal which dimensions have shifted with the medication and which haven’t.' },
+      { title: 'Being open to your phenotype changing.', body: 'Many Mixed Profiles resolve into clearer patterns over time, either because the medication’s effects clarify what was driving what, or because life context changes. The category isn’t permanent.' },
+      { title: 'Seeking guidance that matches your complexity.', body: 'Mixed Profiles often benefit most from working with practitioners who can hold multiple frameworks rather than apply a single one. A consultation specifically about your pattern is often more useful than a packaged program.' },
+    ],
+    situations: {
+      plateau: 'For Mixed Profiles, plateaus are particularly worth examining because they often reveal which dimension is most active for you under stable conditions. What you do during a plateau, and what feels hardest, is informative about which patterns are running.',
+      nausea: 'General nausea management applies. For Mixed Profiles, worth tracking how nausea interacts with whichever eating patterns are most prominent for you specifically.',
+      cost: 'Out of scope for behavioral guidance.',
+      social: 'Mixed Profiles vary widely here. Worth noticing what specifically is hard or easy in social eating contexts — that pattern often reveals which dimensions of your eating are most active.',
+      fatigue: 'A common signal that under-eating may be occurring, but for Mixed Profiles the underlying reason can vary — restriction, nausea, simple appetite reduction. Worth investigating rather than assuming.',
+      anhedonia: 'Variable response in this phenotype. Worth reflecting on what role food was playing for you specifically and what’s been lost or gained in the change.',
+      discontinue: 'Reasonable for Mixed Profiles. The variability in this phenotype makes tapering responses harder to predict. Clinical guidance during taper is particularly valuable.',
+      stigma: 'Common in this phenotype because the cultural narratives around GLP-1s often assume specific phenotypes (high reward-driven, high emotional eating). When your experience doesn’t match the stories, the judgment can feel especially confusing.',
+      none: 'A genuinely smooth Mixed Profile experience is informative — it suggests the medication may be addressing whatever your particular pattern was doing. Worth retaking the assessment in a few months to see how your phenotype has shifted.',
+    },
+    continueTaper: [
+      'The Mixed Profile category is intentionally open-ended because it represents people whose patterns don’t fit cleanly elsewhere. Over time on a GLP-1, many Mixed Profiles clarify into one of the more defined categories — Reward-Driven, Emotional, Effortful Restrainer. This is normal and useful information.',
+      'Tapering is best approached with whichever patterns have become clearest. If your profile has shifted toward a defined phenotype, the strategies for that phenotype apply. If it remains mixed, individualized clinical and behavioral support is the most useful path.',
+    ],
+    reflection: 'What would you want a careful observer to notice about your eating that an assessment couldn’t capture?',
+  },
+};
+
 
 // =============================================================================
 // 4. HOOKS & GLOBAL STYLES
@@ -1729,6 +1992,9 @@ function ResultsScreen({ tfeq, red, phenotypeKey, satisfaction, onRetake, onBack
               </div>
             </div>
 
+            {/* STRATEGY SECTION (DRAFT) */}
+            <StrategySection phenotypeKey={phenotypeKey} phenotype={pheno} satisfaction={satisfaction} />
+
             {/* CONSULTATION CTA */}
             <ConsultationCTA phenotype={pheno} />
 
@@ -1840,6 +2106,127 @@ function PaywallCTA({ phenotype }) {
       <p style={{ fontSize: 13, color: COLORS.muted, lineHeight: 1.5, margin: '24px 0 0', fontStyle: 'italic' }}>
         Educational; not medical advice. Not a substitute for guidance from your prescriber or a licensed clinician.
       </p>
+    </div>
+  );
+}
+
+// -----------------------------------------------------------------------------
+// StrategySection — renders the structured strategy content for the user's
+// phenotype. Currently displays a "DRAFT" banner because the content is v1
+// scaffolding pending Margie's review and revision. Once content is finalized,
+// remove the DraftBanner component and the wrapper note.
+// -----------------------------------------------------------------------------
+function DraftBanner() {
+  return (
+    <div className="print-avoid-break" style={{
+      background: COLORS.terracotta,
+      color: '#FFFFFF',
+      padding: '20px 28px',
+      marginBottom: 32,
+      borderLeft: `6px solid #8E3F26`,
+    }}>
+      <div style={{
+        fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.25em',
+        textTransform: 'uppercase', fontWeight: 600, marginBottom: 6,
+      }}>
+        Draft content — under review
+      </div>
+      <div style={{ fontSize: 14, lineHeight: 1.5, fontFamily: FONT_SANS, opacity: 0.95 }}>
+        The strategy content below is a working draft. The final version will be reviewed and revised by Dr. Melone before this section is released as part of the paid report.
+      </div>
+    </div>
+  );
+}
+
+function StrategySection({ phenotypeKey, phenotype, satisfaction }) {
+  const strategy = PHENOTYPE_STRATEGIES[phenotypeKey];
+  if (!strategy) return null;
+
+  const frustrationKey = satisfaction.topFrustration ? FRUSTRATION_KEYS[satisfaction.topFrustration] : null;
+  const situationalText = frustrationKey ? strategy.situations[frustrationKey] : null;
+
+  const SectionHeading = ({ eyebrow, children }) => (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{
+        fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.2em',
+        textTransform: 'uppercase', color: COLORS.terracotta, marginBottom: 8,
+      }}>
+        {eyebrow}
+      </div>
+      <h3 style={{
+        fontFamily: FONT_SERIF, fontSize: 26, lineHeight: 1.2,
+        margin: 0, fontWeight: 400, color: COLORS.text,
+      }}>
+        {children}
+      </h3>
+    </div>
+  );
+
+  const Para = ({ children }) => (
+    <p style={{ fontSize: 16, lineHeight: 1.7, color: COLORS.text, margin: '0 0 16px' }}>
+      {children}
+    </p>
+  );
+
+  return (
+    <div style={{ marginBottom: 48 }}>
+      <DraftBanner />
+
+      <div className="print-avoid-break" style={{ marginBottom: 40 }}>
+        <div style={{ fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 16 }}>
+          Your strategy
+        </div>
+        <h2 style={{ fontFamily: FONT_SERIF, fontSize: 40, lineHeight: 1.1, margin: '0 0 32px', fontWeight: 400 }}>
+          A behavioral strategy for the {phenotype.name}.
+        </h2>
+        {strategy.opening.map((p, i) => <Para key={i}>{p}</Para>)}
+      </div>
+
+      <div className="print-avoid-break" style={{ marginBottom: 40, padding: '32px 32px', background: COLORS.card, border: `1px solid ${COLORS.border}` }}>
+        <SectionHeading eyebrow="On a GLP-1">What’s likely happening for you</SectionHeading>
+        {strategy.glp1Context.map((p, i) => <Para key={i}>{p}</Para>)}
+      </div>
+
+      <div className="print-avoid-break" style={{ marginBottom: 40 }}>
+        <SectionHeading eyebrow="Three focus areas">Where to direct attention</SectionHeading>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {strategy.focusAreas.map((fa, i) => (
+            <div key={i} style={{ display: 'flex', gap: 20, padding: '20px 24px', background: COLORS.card, border: `1px solid ${COLORS.border}` }}>
+              <div style={{ fontFamily: FONT_SERIF, fontSize: 28, color: COLORS.terracotta, lineHeight: 1, fontStyle: 'italic', minWidth: 36 }}>
+                {String(i + 1).padStart(2, '0')}
+              </div>
+              <div>
+                <div style={{ fontFamily: FONT_SERIF, fontSize: 18, fontWeight: 500, marginBottom: 6, color: COLORS.text }}>{fa.title}</div>
+                <div style={{ fontSize: 15, lineHeight: 1.6, color: COLORS.text }}>{fa.body}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {situationalText && (
+        <div className="print-avoid-break" style={{ marginBottom: 40, padding: '32px 32px', borderLeft: `4px solid ${COLORS.terracotta}`, background: COLORS.card }}>
+          <SectionHeading eyebrow={`Your biggest frustration: ${satisfaction.topFrustration}`}>Navigating this in the real world</SectionHeading>
+          <Para>{situationalText}</Para>
+        </div>
+      )}
+
+      <div className="print-avoid-break" style={{ marginBottom: 40 }}>
+        <SectionHeading eyebrow="Looking ahead">As you continue or taper</SectionHeading>
+        {strategy.continueTaper.map((p, i) => <Para key={i}>{p}</Para>)}
+      </div>
+
+      <div className="print-avoid-break" style={{
+        marginBottom: 40, padding: '32px 32px',
+        background: COLORS.cream, border: `1px solid ${COLORS.border}`,
+      }}>
+        <div style={{ fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 12 }}>
+          A reflection prompt
+        </div>
+        <p style={{ fontFamily: FONT_SERIF, fontSize: 22, lineHeight: 1.4, fontStyle: 'italic', color: COLORS.text, margin: 0 }}>
+          {strategy.reflection}
+        </p>
+      </div>
     </div>
   );
 }
