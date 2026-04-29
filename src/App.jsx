@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, ReferenceLine, LabelList } from 'recharts';
 import founderPhoto from './founder.jpg';
-import logoImage from './logo.svg';
 
 // =============================================================================
 // APPETITE ATLAS — Unified App
@@ -406,19 +405,103 @@ function GlobalStyles() {
 // 5. SHARED COMPONENTS
 // =============================================================================
 
-function Logo({ size = 220, onClick }) {
-  // Michael's logo is a horizontal lockup with the symbol, "Appetite Atlas™",
-  // and the tagline ("Know your appetite. Navigate your journey.") all baked
-  // into the image. Image native aspect ratio is roughly 2.5:1 (width:height).
-  // The `size` prop is the rendered HEIGHT in pixels — for nav use 48-56,
-  // for footer use 40-48, for hero use 80+.
+function Logo({ size = 28, onClick }) {
+  // Drawn natively in code rather than imported as an image, so it (1) renders
+  // crisp at any size, (2) matches the rest of the site's typography exactly
+  // (Instrument Serif for the wordmark, IBM Plex Sans for the tagline), and
+  // (3) scales gracefully without overlapping adjacent content.
+  //
+  // The `size` prop is the wordmark font size in pixels. Everything else
+  // scales proportionally:
+  //   - 28 = nav-bar size (default)
+  //   - 22 = compact / footer
+  //   - 40+ = hero or splash uses
+  const symbolSize = size * 1.4;          // compass-X icon height
+  const taglineSize = size * 0.32;        // small caps tagline under wordmark
+  const tmSize = size * 0.4;              // ™ superscript
+  const stroke = Math.max(1, size * 0.07); // proportional stroke for the X lines
+  const dotR = symbolSize * 0.13;         // center dot radius
+
   return (
-    <div onClick={onClick} style={{ display: 'inline-flex', alignItems: 'center', cursor: onClick ? 'pointer' : 'default' }}>
-      <img
-        src={logoImage}
-        alt={`${BRAND_NAME} — eating-behavior assessment for GLP-1 patients`}
-        style={{ height: size, width: 'auto', display: 'block' }}
-      />
+    <div onClick={onClick} style={{
+      display: 'inline-flex', alignItems: 'center',
+      gap: size * 0.45,
+      cursor: onClick ? 'pointer' : 'default',
+      lineHeight: 1,
+    }}>
+      {/* Compass-X symbol */}
+      <svg
+        width={symbolSize}
+        height={symbolSize}
+        viewBox="0 0 100 100"
+        style={{ flexShrink: 0, display: 'block' }}
+        aria-hidden="true"
+      >
+        {/* Four diagonal lines forming an X, leaving a gap in the center */}
+        <line x1="12" y1="12" x2="38" y2="38" stroke={COLORS.forest} strokeWidth={stroke * 1.2} strokeLinecap="round" />
+        <line x1="88" y1="12" x2="62" y2="38" stroke={COLORS.forest} strokeWidth={stroke * 1.2} strokeLinecap="round" />
+        <line x1="12" y1="88" x2="38" y2="62" stroke={COLORS.forest} strokeWidth={stroke * 1.2} strokeLinecap="round" />
+        <line x1="88" y1="88" x2="62" y2="62" stroke={COLORS.forest} strokeWidth={stroke * 1.2} strokeLinecap="round" />
+        {/* Filled center dot */}
+        <circle cx="50" cy="50" r={dotR * 100 / symbolSize} fill={COLORS.forest} />
+      </svg>
+
+      {/* Wordmark + arrow + tagline stack */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+        {/* Wordmark with TM */}
+        <div style={{
+          fontFamily: FONT_SERIF,
+          fontSize: size,
+          color: COLORS.forest,
+          letterSpacing: '-0.01em',
+          lineHeight: 1,
+          whiteSpace: 'nowrap',
+        }}>
+          {BRAND_NAME}
+          <sup style={{
+            fontFamily: FONT_SANS,
+            fontSize: tmSize,
+            verticalAlign: 'super',
+            marginLeft: '0.05em',
+            fontWeight: 400,
+          }}>™</sup>
+        </div>
+
+        {/* Arrow underline */}
+        <div style={{
+          width: '100%',
+          height: Math.max(1, size * 0.04),
+          background: COLORS.forest,
+          margin: `${size * 0.12}px 0 ${size * 0.18}px`,
+          position: 'relative',
+        }}>
+          {/* Arrowhead */}
+          <div style={{
+            position: 'absolute',
+            right: -size * 0.12,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            width: 0,
+            height: 0,
+            borderLeft: `${size * 0.16}px solid ${COLORS.forest}`,
+            borderTop: `${size * 0.1}px solid transparent`,
+            borderBottom: `${size * 0.1}px solid transparent`,
+          }} />
+        </div>
+
+        {/* Tagline */}
+        <div style={{
+          fontFamily: FONT_SANS,
+          fontSize: taglineSize,
+          color: COLORS.forest,
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
+          lineHeight: 1,
+          whiteSpace: 'nowrap',
+        }}>
+          Know your appetite. Navigate your journey.
+        </div>
+      </div>
     </div>
   );
 }
@@ -520,7 +603,7 @@ function Nav({ onNav }) {
       backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
       borderBottom: `1px solid rgba(207, 198, 178, 0.5)`,
     }}>
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '12px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '20px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Logo onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} />
         <div className="hide-mobile" style={{ display: 'flex', gap: 36, fontSize: 14, fontFamily: FONT_SANS }}>
           <span className="nav-link" onClick={() => onNav('approach')}>Approach</span>
@@ -958,7 +1041,7 @@ function Footer() {
         display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, alignItems: 'end',
       }}>
         <div>
-          <Logo size={96} />
+          <Logo size={22} />
           <div style={{ fontSize: 13, color: COLORS.muted, lineHeight: 1.6, maxWidth: '40ch', marginTop: 12 }}>
             An eating-behavior assessment for GLP-1 patients. Educational; not a substitute for medical advice or treatment.
           </div>
