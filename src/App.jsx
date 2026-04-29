@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, ReferenceLine, LabelList } from 'recharts';
 import founderPhoto from './founder.jpg';
+import logoImage from './logo.png';
 
 // =============================================================================
 // APPETITE ATLAS — Unified App
 // =============================================================================
-// Marketing site + v3 assessment (TFEQ-R21 + RED-9 + Satisfaction module)
+// Marketing site + v3 assessment (TFEQ-R21 + RED-13 + Satisfaction module)
 // + post-results behavioral consultation CTA.
 //
 // STRUCTURE
 //   1. Brand & content constants (FOUNDER_NAME, etc.)
-//   2. Instruments (TFEQ-R21, RED-9, satisfaction module options)
+//   2. Instruments (TFEQ-R21, RED-13, satisfaction module options)
 //   3. Scoring + phenotypes
 //   4. Hooks & global styles
 //   5. Shared (Logo, Button, SectionHeader, PrototypeBanner)
@@ -63,10 +64,15 @@ const FONT_MONO  = '"IBM Plex Mono", ui-monospace, monospace';
 // =============================================================================
 // 2. INSTRUMENTS
 // =============================================================================
-// NOTE: TFEQ-R21 and RED-9 items below are working prototype items closely
+// NOTE: TFEQ-R21 items below are working prototype items closely
 // reflecting published wording. Final production items must use the officially
 // validated versions (Karlsson et al. 2000 / de Lauzon et al. 2004 for
-// TFEQ-R21; Mason, Epel et al. for RED-9).
+// TFEQ-R21, licensed via Mapi Research Trust / ePROVIDE).
+// RED-13 items are taken from Vainik et al. 2019 (Obesity 27:325-331),
+// Table 1, with subscale assignments per the original Mason et al. 2017
+// validation paper. Pending written confirmation from Mason regarding the
+// canonical wording, particularly item RED3 (publisher typo corrected to
+// "It is difficult..." from "If it difficult...").
 
 const TFEQ_ITEMS = [
   { id: 'cr1', text: 'I deliberately take small helpings as a means of controlling my weight.', scale: 'CR' },
@@ -102,17 +108,24 @@ const TFEQ_OPTIONS = [
 ];
 
 const RED_ITEMS = [
-  { id: 'lc1', text: 'I have a hard time resisting eating delicious foods.', scale: 'LC' },
-  { id: 'lc2', text: 'When I start eating foods I love, I find it hard to stop.', scale: 'LC' },
-  { id: 'lc3', text: 'I sometimes feel that food controls me, rather than the other way around.', scale: 'LC' },
+  // Loss of Control (LOC) — 6 items
+  { id: 'red1',  text: 'I feel out of control in the presence of delicious food.', scale: 'LOC' },
+  { id: 'red2',  text: 'When I start eating, I just can’t seem to stop.', scale: 'LOC' },
+  { id: 'red3',  text: 'It is difficult for me to leave food on my plate.', scale: 'LOC' },
+  { id: 'red4',  text: 'When it comes to foods I love, I have no willpower.', scale: 'LOC' },
+  { id: 'red11', text: 'I find myself continuing to consume certain foods even though I am no longer hungry.', scale: 'LOC' },
+  { id: 'red13', text: 'If food tastes good to me, I eat more than usual.', scale: 'LOC' },
 
-  { id: 'ls1', text: 'Even when I’m full, I often keep eating if the food tastes good.', scale: 'LS' },
-  { id: 'ls2', text: 'I rarely feel completely satisfied after a meal.', scale: 'LS' },
-  { id: 'ls3', text: 'After finishing a meal, I often still want more.', scale: 'LS' },
+  // Lack of Satiety (LOS) — 3 items
+  { id: 'red5',  text: 'I get so hungry that my stomach often feels like a bottomless pit.', scale: 'LOS' },
+  { id: 'red6',  text: 'I don’t get full easily.', scale: 'LOS' },
+  { id: 'red10', text: 'I feel hungry all the time.', scale: 'LOS' },
 
-  { id: 'pr1', text: 'I think about food a lot of the time, even when I’m not hungry.', scale: 'PR' },
-  { id: 'pr2', text: 'My thoughts about food can feel intrusive or hard to ignore.', scale: 'PR' },
-  { id: 'pr3', text: 'I often plan what I’ll eat next, well before I’m hungry.', scale: 'PR' },
+  // Preoccupation With Food (PWF) — 4 items
+  { id: 'red7',  text: 'It seems like most of my waking hours are preoccupied by thoughts about eating or not eating.', scale: 'PWF' },
+  { id: 'red8',  text: 'I have days when I can’t seem to think about anything else but food.', scale: 'PWF' },
+  { id: 'red9',  text: 'Food is always on my mind.', scale: 'PWF' },
+  { id: 'red12', text: 'I can’t stop thinking about eating no matter how hard I try.', scale: 'PWF' },
 ];
 
 const RED_OPTIONS = [
@@ -138,9 +151,7 @@ const GLP1_QUESTIONS = [
 
 const SATISFACTION_SLIDERS = [
   { id: 'sat_overall', label: 'Overall, how satisfied are you with your GLP-1 experience?' },
-  { id: 'sat_results', label: 'Satisfaction with your weight or health results so far' },
-  { id: 'sat_feel',    label: 'Satisfaction with how you feel physically on the medication' },
-  { id: 'sat_food',    label: 'Satisfaction with how it has affected your relationship with food' },
+  { id: 'sat_food',    label: 'How would you rate your current relationship with food?' },
 ];
 
 const PLATEAU_OPTIONS = [
@@ -165,9 +176,7 @@ const FRUSTRATION_OPTIONS = [
   'Fear of stopping the medication',
   'Social situations and eating out',
   'Fatigue or low energy',
-  'Muscle loss concerns',
   'Food not feeling enjoyable anymore',
-  'Worry about long-term safety',
   'Feeling judged for taking it',
   'None of these — it’s been smooth',
 ];
@@ -194,14 +203,18 @@ function scoreTFEQ(answers) {
 }
 
 function scoreRED(answers) {
-  const lcItems = RED_ITEMS.filter(i => i.scale === 'LC');
-  const lsItems = RED_ITEMS.filter(i => i.scale === 'LS');
-  const prItems = RED_ITEMS.filter(i => i.scale === 'PR');
+  const locItems = RED_ITEMS.filter(i => i.scale === 'LOC');
+  const losItems = RED_ITEMS.filter(i => i.scale === 'LOS');
+  const pwfItems = RED_ITEMS.filter(i => i.scale === 'PWF');
   const mean = (items) => items.reduce((acc, it) => acc + (answers[it.id] || 0), 0) / items.length;
-  const LC = mean(lcItems), LS = mean(lsItems), PR = mean(prItems);
-  const AGG = (LC + LS + PR) / 3;
+  const LOC = mean(locItems), LOS = mean(losItems), PWF = mean(pwfItems);
+  // RED-13 is treated as largely unidimensional (Vainik et al. 2019); aggregate
+  // is computed across all 13 items rather than averaging subscale means, so the
+  // aggregate is not biased by which subscale has more items.
+  const allItems = RED_ITEMS;
+  const AGG = mean(allItems);
   const toPct = (v) => ((v - 1) / 4) * 100;
-  return { LC, LS, PR, AGG, LC_pct: toPct(LC), LS_pct: toPct(LS), PR_pct: toPct(PR), AGG_pct: toPct(AGG) };
+  return { LOC, LOS, PWF, AGG, LOC_pct: toPct(LOC), LOS_pct: toPct(LOS), PWF_pct: toPct(PWF), AGG_pct: toPct(AGG) };
 }
 
 function determinePhenotype(tfeq, red) {
@@ -394,12 +407,19 @@ function GlobalStyles() {
 // =============================================================================
 
 function Logo({ size = 22, onClick }) {
+  // Michael's logo is a horizontal lockup with the symbol, "Appetite Atlas™",
+  // and the tagline ("Know your appetite. Navigate your journey.") all baked
+  // into the image. The image's cream background matches the site's cream,
+  // so it sits in headers without a visible edge.
+  // The image's native aspect ratio is roughly 2.5:1 (width:height).
+  const imgHeight = size * 2.4;
   return (
-    <div onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: onClick ? 'pointer' : 'default' }}>
-      <div style={{ width: size, height: size, borderRadius: '50%', background: COLORS.forest, position: 'relative', flexShrink: 0 }}>
-        <div style={{ position: 'absolute', inset: size * 0.27, borderRadius: '50%', background: COLORS.cream }} />
-      </div>
-      <span style={{ fontFamily: FONT_SERIF, fontSize: size, letterSpacing: '0.01em', color: COLORS.text, lineHeight: 1, whiteSpace: 'nowrap' }}>{BRAND_NAME}</span>
+    <div onClick={onClick} style={{ display: 'inline-flex', alignItems: 'center', cursor: onClick ? 'pointer' : 'default' }}>
+      <img
+        src={logoImage}
+        alt={`${BRAND_NAME} — eating-behavior assessment for GLP-1 patients`}
+        style={{ height: imgHeight, width: 'auto', display: 'block' }}
+      />
     </div>
   );
 }
@@ -448,7 +468,7 @@ function PrototypeBanner() {
       letterSpacing: '0.05em',
       textAlign: 'center',
     }}>
-      PROTOTYPE · TFEQ-R21 and RED-9 items shown are placeholder approximations of the validated wording
+      PROTOTYPE · TFEQ-R21 and RED-13 items shown are placeholder approximations of the validated wording
     </div>
   );
 }
@@ -642,7 +662,7 @@ function Approach() {
         <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 48 }}>
           <Pillar
             label="Validated Instruments"
-            text="The assessment uses items from the Three-Factor Eating Questionnaire (TFEQ-R21) and the Reward-based Eating Drive scale (RED-9) — gold standards for measuring cognitive restraint, emotional eating, uncontrolled eating, and reward-driven eating patterns."
+            text="The assessment uses items from the Three-Factor Eating Questionnaire (TFEQ-R21) and the Reward-based Eating Drive scale (RED-13) — gold standards for measuring cognitive restraint, emotional eating, uncontrolled eating, and reward-driven eating patterns."
           />
           <Pillar
             label="Phenotype, Not Diet"
@@ -704,7 +724,7 @@ function AssessmentSection({ onStartAssessment }) {
               About ten minutes. <em style={{ fontStyle: 'italic', color: COLORS.forest }}>One precise picture of how you eat.</em>
             </h2>
             <p style={{ fontSize: 18, lineHeight: 1.65, color: COLORS.text, margin: '0 0 40px 0' }}>
-              You’ll answer 30 questions drawn from validated eating-behavior research. We map your responses across four dimensions — cognitive restraint, uncontrolled eating, emotional eating, and reward-based eating drive — and surface the eating phenotype that fits your patterns most closely.
+              You’ll answer about 35 questions drawn from validated eating-behavior research. We map your responses across four dimensions — cognitive restraint, uncontrolled eating, emotional eating, and reward-based eating drive — and surface the eating phenotype that fits your patterns most closely.
             </p>
 
             <ProcessStep number="01" title="Answer" text="Questions about how you eat, why you eat, and what foods do to you. Plus a short module on how your GLP-1 experience is actually going." />
@@ -1165,26 +1185,8 @@ function SatisfactionScreen({ answers, setAnswers, onNext, onBack, onLogoClick }
   const slidersAnswered = SATISFACTION_SLIDERS.every(s => answers[s.id] != null);
   const plateauAnswered = !!answers.plateau;
   const trajectoryAnswered = !!answers.trajectory;
-  const frustrationsList = answers.frustrations || [];
-  const frustrationsAnswered = frustrationsList.length > 0;
-  const hasOnlyNone = frustrationsList.length === 1 && frustrationsList[0].startsWith('None');
-  const topFrustrationAnswered = hasOnlyNone || (frustrationsList.length > 0 && answers.topFrustration);
-  const canContinue = slidersAnswered && plateauAnswered && trajectoryAnswered && frustrationsAnswered && topFrustrationAnswered;
-
-  const toggleFrustration = (opt) => {
-    const cur = answers.frustrations || [];
-    let next;
-    if (cur.includes(opt)) {
-      next = cur.filter(x => x !== opt);
-    } else {
-      if (opt.startsWith('None')) next = [opt];
-      else next = [...cur.filter(x => !x.startsWith('None')), opt];
-    }
-    const update = { ...answers, frustrations: next };
-    if (next.length === 1 && next[0].startsWith('None')) update.topFrustration = null;
-    else if (!next.includes(answers.topFrustration)) update.topFrustration = null;
-    setAnswers(update);
-  };
+  const frustrationAnswered = !!answers.topFrustration;
+  const canContinue = slidersAnswered && plateauAnswered && trajectoryAnswered && frustrationAnswered;
 
   return (
     <AssessmentShell progress={18} onLogoClick={onLogoClick}>
@@ -1199,7 +1201,7 @@ function SatisfactionScreen({ answers, setAnswers, onNext, onBack, onLogoClick }
           Your subjective experience matters as much as your eating phenotype. We’ll use both to interpret your results.
         </p>
 
-        {/* SATISFACTION SLIDERS */}
+        {/* SATISFACTION SLIDERS — now 2 instead of 4 */}
         <div style={{ marginBottom: 56 }}>
           <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 24 }}>
             Satisfaction · 1–10
@@ -1242,21 +1244,21 @@ function SatisfactionScreen({ answers, setAnswers, onNext, onBack, onLogoClick }
           </div>
         </div>
 
-        {/* FRUSTRATIONS */}
+        {/* BIGGEST FRUSTRATION — single-select instead of multi + follow-up */}
         <div style={{ marginBottom: 56 }}>
           <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 16 }}>
-            Frustrations
+            Biggest frustration
           </div>
           <div style={{ fontSize: 17, lineHeight: 1.4, marginBottom: 16 }}>
-            Which of these have been frustrating? <span style={{ color: COLORS.muted, fontStyle: 'italic' }}>Check all that apply.</span>
+            What has been your biggest frustration so far?
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {FRUSTRATION_OPTIONS.map(opt => {
-              const selected = frustrationsList.includes(opt);
+              const selected = answers.topFrustration === opt;
               return (
                 <button
                   key={opt}
-                  onClick={() => toggleFrustration(opt)}
+                  onClick={() => setAnswers({ ...answers, topFrustration: opt })}
                   style={{
                     fontFamily: FONT_SANS, fontSize: 15, padding: '12px 18px', textAlign: 'left',
                     borderRadius: 2,
@@ -1264,50 +1266,13 @@ function SatisfactionScreen({ answers, setAnswers, onNext, onBack, onLogoClick }
                     background: selected ? COLORS.forest : COLORS.card,
                     color: selected ? COLORS.cream : COLORS.text,
                     cursor: 'pointer', transition: 'all 150ms ease',
-                    display: 'flex', alignItems: 'center', gap: 12,
                   }}
                 >
-                  <span style={{
-                    width: 16, height: 16,
-                    border: `1.5px solid ${selected ? COLORS.cream : COLORS.borderDark}`,
-                    borderRadius: 2,
-                    background: selected ? COLORS.cream : 'transparent',
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 11, color: COLORS.forest, fontWeight: 700, flexShrink: 0,
-                  }}>{selected ? '✓' : ''}</span>
                   {opt}
                 </button>
               );
             })}
           </div>
-
-          {frustrationsList.length > 0 && !hasOnlyNone && (
-            <div style={{ marginTop: 32, paddingTop: 24, borderTop: `1px solid ${COLORS.border}` }}>
-              <div style={{ fontSize: 16, lineHeight: 1.4, marginBottom: 14 }}>
-                Of those, what’s your <em>biggest</em> frustration right now?
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {frustrationsList.filter(f => !f.startsWith('None')).map(opt => {
-                  const selected = answers.topFrustration === opt;
-                  return (
-                    <button
-                      key={opt}
-                      onClick={() => setAnswers({ ...answers, topFrustration: opt })}
-                      style={{
-                        fontFamily: FONT_SANS, fontSize: 13, padding: '8px 14px', borderRadius: 2,
-                        border: `1px solid ${selected ? COLORS.terracotta : COLORS.borderDark}`,
-                        background: selected ? COLORS.terracotta : 'transparent',
-                        color: selected ? COLORS.cream : COLORS.text,
-                        cursor: 'pointer', transition: 'all 150ms ease',
-                      }}
-                    >
-                      {opt}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* TRAJECTORY */}
@@ -1531,22 +1496,14 @@ function StartingPointCallout({ satisfaction }) {
       <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 16 }}>
         Your starting point
       </div>
-      <div className="grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, marginBottom: 24 }}>
+      <div className="grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }}>
         <div>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 6 }}>Overall</div>
-          <div style={{ fontFamily: FONT_SERIF, fontSize: 28, color: COLORS.forest }}>{overall}/10</div>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 6 }}>Overall satisfaction</div>
+          <div style={{ fontFamily: FONT_SERIF, fontSize: 32, color: COLORS.forest }}>{overall}/10</div>
         </div>
         <div>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 6 }}>Results</div>
-          <div style={{ fontFamily: FONT_SERIF, fontSize: 28, color: COLORS.forest }}>{satisfaction.sat_results}/10</div>
-        </div>
-        <div>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 6 }}>Feel</div>
-          <div style={{ fontFamily: FONT_SERIF, fontSize: 28, color: COLORS.forest }}>{satisfaction.sat_feel}/10</div>
-        </div>
-        <div>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 6 }}>Food rel.</div>
-          <div style={{ fontFamily: FONT_SERIF, fontSize: 28, color: COLORS.forest }}>{satisfaction.sat_food}/10</div>
+          <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 6 }}>Relationship with food</div>
+          <div style={{ fontFamily: FONT_SERIF, fontSize: 32, color: COLORS.forest }}>{satisfaction.sat_food}/10</div>
         </div>
       </div>
       <div className="grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, paddingTop: 20, borderTop: `1px solid ${COLORS.border}` }}>
@@ -1579,9 +1536,32 @@ function ResultsScreen({ tfeq, red, phenotypeKey, satisfaction, onRetake, onBack
     { name: 'Cognitive\nRestraint', score: tfeq.CR,    category: tfeq.CR > 55     ? 'high' : tfeq.CR > 35     ? 'mid' : 'low' },
     { name: 'Emotional\nEating',    score: tfeq.EE,    category: tfeq.EE > 45     ? 'high' : tfeq.EE > 25     ? 'mid' : 'low' },
     { name: 'Uncontrolled\nEating', score: tfeq.UE,    category: tfeq.UE > 55     ? 'high' : tfeq.UE > 35     ? 'mid' : 'low' },
-    { name: 'Reward-Based\nEating Drive', score: red.AGG_pct, category: red.AGG_pct > 50 ? 'high' : red.AGG_pct > 30 ? 'mid' : 'low' },
+    { name: 'Reward-Based\nEating', score: red.AGG_pct, category: red.AGG_pct > 50 ? 'high' : red.AGG_pct > 30 ? 'mid' : 'low' },
   ];
   const categoryColor = (cat) => ({ high: COLORS.terracotta, mid: COLORS.amber, low: COLORS.sage }[cat]);
+
+  // Custom tick renderer: splits 'Cognitive\nRestraint' into two stacked lines.
+  // Recharts does not natively wrap on \n, which was causing overlap.
+  const TwoLineTick = ({ x, y, payload }) => {
+    const lines = String(payload.value).split('\n');
+    return (
+      <g transform={`translate(${x},${y})`}>
+        {lines.map((line, i) => (
+          <text
+            key={i}
+            x={0}
+            y={i * 14 + 14}
+            textAnchor="middle"
+            fill={COLORS.text}
+            fontFamily="IBM Plex Sans"
+            fontSize={12}
+          >
+            {line}
+          </text>
+        ))}
+      </g>
+    );
+  };
 
   return (
     <div style={{ minHeight: '100vh', background: COLORS.cream, color: COLORS.text, fontFamily: FONT_SANS }}>
@@ -1624,10 +1604,10 @@ function ResultsScreen({ tfeq, red, phenotypeKey, satisfaction, onRetake, onBack
           <div style={{ fontFamily: FONT_SERIF, fontSize: 24, marginBottom: 28, fontWeight: 400 }}>
             Where you fall on each dimension
           </div>
-          <div style={{ height: 280 }}>
+          <div style={{ height: 320 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={scoreData} margin={{ top: 20, right: 20, left: 0, bottom: 40 }}>
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: COLORS.text, fontFamily: 'IBM Plex Sans' }} interval={0} />
+              <BarChart data={scoreData} margin={{ top: 20, right: 20, left: 0, bottom: 50 }}>
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={<TwoLineTick />} interval={0} height={50} />
                 <YAxis domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: COLORS.muted, fontFamily: 'IBM Plex Mono' }} ticks={[0, 25, 50, 75, 100]} />
                 <ReferenceLine y={50} stroke={COLORS.borderDark} strokeDasharray="2 4" />
                 <Bar dataKey="score" radius={[2, 2, 0, 0]}>
@@ -1716,10 +1696,10 @@ function ResultsScreen({ tfeq, red, phenotypeKey, satisfaction, onRetake, onBack
                 ['TFEQ-R21', 'Cognitive Restraint', tfeq.CR.toFixed(1), '45 (pop.)'],
                 ['TFEQ-R21', 'Uncontrolled Eating', tfeq.UE.toFixed(1), '40 (pop.)'],
                 ['TFEQ-R21', 'Emotional Eating',    tfeq.EE.toFixed(1), '35 (pop.)'],
-                ['RED-9',    'Lack of Control',     red.LC.toFixed(2),  '~2.5'],
-                ['RED-9',    'Lack of Satiation',   red.LS.toFixed(2),  '~2.3'],
-                ['RED-9',    'Preoccupation',       red.PR.toFixed(2),  '~2.4'],
-                ['RED-9',    'Aggregate',           red.AGG.toFixed(2), '~2.4'],
+                ['RED-13',   'Loss of Control',     red.LOC.toFixed(2),  '~2.5'],
+                ['RED-13',   'Lack of Satiety',     red.LOS.toFixed(2),  '~2.3'],
+                ['RED-13',   'Preoccupation',       red.PWF.toFixed(2),  '~2.4'],
+                ['RED-13',   'Aggregate',           red.AGG.toFixed(2), '~2.4'],
               ].map((row, i) => (
                 <tr key={i} style={{ borderBottom: `1px solid ${COLORS.border}` }}>
                   <td style={{ padding: '14px 0', fontSize: 14, color: COLORS.muted, fontFamily: FONT_MONO }}>{row[0]}</td>
@@ -1735,7 +1715,7 @@ function ResultsScreen({ tfeq, red, phenotypeKey, satisfaction, onRetake, onBack
         {/* FOOTER NOTE */}
         <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 32, fontSize: 13, color: COLORS.muted, lineHeight: 1.65, maxWidth: 640 }}>
           <p style={{ margin: '0 0 12px' }}>
-            This assessment is based on the Three-Factor Eating Questionnaire–R21 (Karlsson et al., 2000; de Lauzon et al., 2004) and the Reward-based Eating Drive scale, 9-item version (Mason, Epel et al.). Both are validated self-report measures of eating behavior.
+            This assessment is based on the Three-Factor Eating Questionnaire–R21 (Karlsson et al., 2000; de Lauzon et al., 2004) and the Reward-based Eating Drive scale, 13-item version (Mason et al., 2017; Vainik et al., 2019). Both are validated self-report measures of eating behavior.
           </p>
           <p style={{ margin: 0 }}>
             Scores reflect a snapshot of your eating tendencies, not a clinical diagnosis. Consider retaking the assessment at 3 and 6 months into your GLP-1 treatment, and again if you taper or discontinue, to see how your profile shifts.
