@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3000 1875" width="3000" height="1875">
+  <rect width="3000" height="1875" fill="#F5F1E8"/>
+
+  <!-- Icon: filled circle with 4 diagonal lines -->
+  <circle cx="787.5" cy="900.0" r="75.0" fill="#3D4F3A"/>
+  <line x1="840.5" y1="953.0" x2="946.6" y2="1059.1" stroke="#3D4F3A" stroke-width="7.5" stroke-linecap="round" />
+  <line x1="734.5" y1="953.0" x2="628.4" y2="1059.1" stroke="#3D4F3A" stroke-width="7.5" stroke-linecap="round" />
+  <line x1="734.5" y1="847.0" x2="628.4" y2="740.9" stroke="#3D4F3A" stroke-width="7.5" stroke-linecap="round" />
+  <line x1="840.5" y1="847.0" x2="946.6" y2="740.9" stroke="#3D4F3A" stroke-width="7.5" stroke-linecap="round" />
+
+  <!-- Wordmark — uses Instrument Serif to match the site's typography -->
+  <text x="1050.0" y="918.8"
+        font-family="'Instrument Serif', Georgia, 'Times New Roman', serif"
+        font-size="206.2px"
+        fill="#3D4F3A">Appetite Atlas</text>
+
+  <!-- TM -->
+  <text x="2578.1" y="765.0"
+        font-family="'IBM Plex Sans', Arial, Helvetica, sans-serif"
+        font-size="52.5px"
+        fill="#3D4F3A">TM</text>
+
+  <!-- Arrow line -->
+  <line x1="1050.0" y1="975.0" x2="2625.0" y2="975.0"
+        stroke="#3D4F3A" stroke-width="5.6" stroke-linecap="round"/>
+
+  <!-- Arrowhead -->
+  <polygon points="2625.0,975.0 2606.2,961.9 2606.2,988.1"
+           fill="#3D4F3A"/>
+
+  <!-- Tagline — uses IBM Plex Sans to match the site's sans-serif typography -->
+  <text x="1050.0" y="1096.9"
+        font-family="'IBM Plex Sans', Arial, Helvetica, sans-serif"
+        font-size="60.0px"
+        fill="#3D4F3A"
+        letter-spacing="5.6">KNOW YOUR APPETITE. NAVIGATE YOUR JOURNEY.</text>
+</svg>
