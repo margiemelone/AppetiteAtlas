@@ -405,27 +405,22 @@ function GlobalStyles() {
 // 5. SHARED COMPONENTS
 // =============================================================================
 
-function Logo({ size = 56, onClick }) {
-  // Drawn natively in code rather than imported as an image, so it (1) renders
-  // crisp at any size, (2) matches the rest of the site's typography exactly
-  // (Instrument Serif for the wordmark, IBM Plex Sans for the tagline), and
-  // (3) scales gracefully without overlapping adjacent content.
+function Logo({ size = 26, onClick }) {
+  // Drawn natively in code — renders crisp at any size and matches the rest of
+  // the site's typography (Instrument Serif). The tagline that lives in the
+  // larger brand lockup is intentionally NOT in the nav logo; it has too many
+  // characters to read at nav-bar sizes. The tagline can live elsewhere on
+  // the page (hero, footer) as full-size text where it has room to breathe.
   //
-  // The `size` prop is the wordmark font size in pixels. Everything else
-  // scales proportionally:
-  //   - 28 = nav-bar size (default)
-  //   - 22 = compact / footer
-  //   - 40+ = hero or splash uses
-  const symbolSize = size * 1.4;          // compass-X icon height
-  const taglineSize = size * 0.32;        // small caps tagline under wordmark
-  const tmSize = size * 0.4;              // ™ superscript
-  const stroke = Math.max(1, size * 0.07); // proportional stroke for the X lines
-  const dotR = symbolSize * 0.13;         // center dot radius
+  // The `size` prop is the wordmark font size in pixels. Symbol scales with it.
+  const symbolSize = size * 1.15;
+  const tmSize = size * 0.4;
+  const stroke = Math.max(1, size * 0.08);
 
   return (
     <div onClick={onClick} style={{
       display: 'inline-flex', alignItems: 'center',
-      gap: size * 0.45,
+      gap: size * 0.4,
       cursor: onClick ? 'pointer' : 'default',
       lineHeight: 1,
     }}>
@@ -437,70 +432,30 @@ function Logo({ size = 56, onClick }) {
         style={{ flexShrink: 0, display: 'block' }}
         aria-hidden="true"
       >
-        {/* Four diagonal lines forming an X, leaving a gap in the center */}
         <line x1="12" y1="12" x2="38" y2="38" stroke={COLORS.forest} strokeWidth={stroke * 1.2} strokeLinecap="round" />
         <line x1="88" y1="12" x2="62" y2="38" stroke={COLORS.forest} strokeWidth={stroke * 1.2} strokeLinecap="round" />
         <line x1="12" y1="88" x2="38" y2="62" stroke={COLORS.forest} strokeWidth={stroke * 1.2} strokeLinecap="round" />
         <line x1="88" y1="88" x2="62" y2="62" stroke={COLORS.forest} strokeWidth={stroke * 1.2} strokeLinecap="round" />
-        {/* Filled center dot */}
-        <circle cx="50" cy="50" r={dotR * 100 / symbolSize} fill={COLORS.forest} />
+        <circle cx="50" cy="50" r={13} fill={COLORS.forest} />
       </svg>
 
-      {/* Wordmark + arrow + tagline stack */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-        {/* Wordmark with TM */}
-        <div style={{
-          fontFamily: FONT_SERIF,
-          fontSize: size,
-          color: COLORS.forest,
-          letterSpacing: '-0.01em',
-          lineHeight: 1,
-          whiteSpace: 'nowrap',
-        }}>
-          {BRAND_NAME}
-          <sup style={{
-            fontFamily: FONT_SANS,
-            fontSize: tmSize,
-            verticalAlign: 'super',
-            marginLeft: '0.05em',
-            fontWeight: 400,
-          }}>™</sup>
-        </div>
-
-        {/* Arrow underline */}
-        <div style={{
-          width: '100%',
-          height: Math.max(1, size * 0.04),
-          background: COLORS.forest,
-          margin: `${size * 0.12}px 0 ${size * 0.18}px`,
-          position: 'relative',
-        }}>
-          {/* Arrowhead */}
-          <div style={{
-            position: 'absolute',
-            right: -size * 0.12,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            width: 0,
-            height: 0,
-            borderLeft: `${size * 0.16}px solid ${COLORS.forest}`,
-            borderTop: `${size * 0.1}px solid transparent`,
-            borderBottom: `${size * 0.1}px solid transparent`,
-          }} />
-        </div>
-
-        {/* Tagline */}
-        <div style={{
+      {/* Wordmark with TM */}
+      <div style={{
+        fontFamily: FONT_SERIF,
+        fontSize: size,
+        color: COLORS.forest,
+        letterSpacing: '-0.01em',
+        lineHeight: 1,
+        whiteSpace: 'nowrap',
+      }}>
+        {BRAND_NAME}
+        <sup style={{
           fontFamily: FONT_SANS,
-          fontSize: taglineSize,
-          color: COLORS.forest,
-          letterSpacing: '0.18em',
-          textTransform: 'uppercase',
-          lineHeight: 1,
-          whiteSpace: 'nowrap',
-        }}>
-          Know your appetite. Navigate your journey.
-        </div>
+          fontSize: tmSize,
+          verticalAlign: 'super',
+          marginLeft: '0.05em',
+          fontWeight: 400,
+        }}>™</sup>
       </div>
     </div>
   );
@@ -1041,8 +996,18 @@ function Footer() {
         display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, alignItems: 'end',
       }}>
         <div>
-          <Logo size={44} />
-          <div style={{ fontSize: 13, color: COLORS.muted, lineHeight: 1.6, maxWidth: '40ch', marginTop: 12 }}>
+          <Logo size={20} />
+          <div style={{
+            fontFamily: FONT_SERIF,
+            fontSize: 14,
+            fontStyle: 'italic',
+            color: COLORS.forest,
+            marginTop: 10,
+            letterSpacing: '0.005em',
+          }}>
+            Know your appetite. Navigate your journey.
+          </div>
+          <div style={{ fontSize: 13, color: COLORS.muted, lineHeight: 1.6, maxWidth: '40ch', marginTop: 14 }}>
             An eating-behavior assessment for GLP-1 patients. Educational; not a substitute for medical advice or treatment.
           </div>
         </div>
