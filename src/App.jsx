@@ -406,7 +406,7 @@ function GlobalStyles() {
 // 5. SHARED COMPONENTS
 // =============================================================================
 
-function Logo({ size = 48, onClick }) {
+function Logo({ size = 80, onClick }) {
   // Michael's logo is a horizontal lockup with the symbol, "Appetite Atlas™",
   // and the tagline ("Know your appetite. Navigate your journey.") all baked
   // into the image. Image native aspect ratio is roughly 2.5:1 (width:height).
@@ -958,7 +958,7 @@ function Footer() {
         display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, alignItems: 'end',
       }}>
         <div>
-          <Logo size={42} />
+          <Logo size={64} />
           <div style={{ fontSize: 13, color: COLORS.muted, lineHeight: 1.6, maxWidth: '40ch', marginTop: 12 }}>
             An eating-behavior assessment for GLP-1 patients. Educational; not a substitute for medical advice or treatment.
           </div>
