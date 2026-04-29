@@ -405,7 +405,7 @@ function GlobalStyles() {
 // 5. SHARED COMPONENTS
 // =============================================================================
 
-function Logo({ size = 26, onClick }) {
+function Logo({ size = 52, onClick }) {
   // Drawn natively in code — renders crisp at any size and matches the rest of
   // the site's typography (Instrument Serif). The tagline that lives in the
   // larger brand lockup is intentionally NOT in the nav logo; it has too many
@@ -996,7 +996,7 @@ function Footer() {
         display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, alignItems: 'end',
       }}>
         <div>
-          <Logo size={20} />
+          <Logo size={40} />
           <div style={{
             fontFamily: FONT_SERIF,
             fontSize: 14,
