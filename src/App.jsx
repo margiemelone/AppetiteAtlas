@@ -405,7 +405,7 @@ function GlobalStyles() {
 // 5. SHARED COMPONENTS
 // =============================================================================
 
-function Logo({ size = 28, onClick }) {
+function Logo({ size = 56, onClick }) {
   // Drawn natively in code rather than imported as an image, so it (1) renders
   // crisp at any size, (2) matches the rest of the site's typography exactly
   // (Instrument Serif for the wordmark, IBM Plex Sans for the tagline), and
@@ -1041,7 +1041,7 @@ function Footer() {
         display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, alignItems: 'end',
       }}>
         <div>
-          <Logo size={22} />
+          <Logo size={44} />
           <div style={{ fontSize: 13, color: COLORS.muted, lineHeight: 1.6, maxWidth: '40ch', marginTop: 12 }}>
             An eating-behavior assessment for GLP-1 patients. Educational; not a substitute for medical advice or treatment.
           </div>
