@@ -406,7 +406,7 @@ function GlobalStyles() {
 // 5. SHARED COMPONENTS
 // =============================================================================
 
-function Logo({ size = 120, onClick }) {
+function Logo({ size = 220, onClick }) {
   // Michael's logo is a horizontal lockup with the symbol, "Appetite Atlas™",
   // and the tagline ("Know your appetite. Navigate your journey.") all baked
   // into the image. Image native aspect ratio is roughly 2.5:1 (width:height).
