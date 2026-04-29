@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, ReferenceLine, LabelList } from 'recharts';
 import founderPhoto from './founder.jpg';
-import logoImage from './logo.png';
+import logoImage from './logo.svg';
 
 // =============================================================================
 // APPETITE ATLAS — Unified App
@@ -406,7 +406,7 @@ function GlobalStyles() {
 // 5. SHARED COMPONENTS
 // =============================================================================
 
-function Logo({ size = 120, onClick }) {
+function Logo({ size = 80, onClick }) {
   // Michael's logo is a horizontal lockup with the symbol, "Appetite Atlas™",
   // and the tagline ("Know your appetite. Navigate your journey.") all baked
   // into the image. Image native aspect ratio is roughly 2.5:1 (width:height).
@@ -958,7 +958,7 @@ function Footer() {
         display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, alignItems: 'end',
       }}>
         <div>
-          <Logo size={96} />
+          <Logo size={64} />
           <div style={{ fontSize: 13, color: COLORS.muted, lineHeight: 1.6, maxWidth: '40ch', marginTop: 12 }}>
             An eating-behavior assessment for GLP-1 patients. Educational; not a substitute for medical advice or treatment.
           </div>
