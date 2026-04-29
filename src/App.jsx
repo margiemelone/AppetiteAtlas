@@ -1579,6 +1579,14 @@ function StartingPointCallout({ satisfaction }) {
 function ResultsScreen({ tfeq, red, phenotypeKey, satisfaction, onRetake, onBackToSite }) {
   const pheno = PHENOTYPES[phenotypeKey];
 
+  // PHASE 1A: Paywall gating without real payment yet.
+  // Free results show: StartingPointCallout + phenotype hero + paywall CTA.
+  // Paid results show: everything (score chart, GLP-1 implications, focus areas,
+  //   consultation CTA, detailed score table, methodology).
+  // For now, paid state is controlled by ?unlocked=true URL param so we (Margie)
+  // can preview the paid view. Stripe integration comes in Phase 2.
+  const isUnlocked = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('unlocked') === 'true';
+
   const scoreData = [
     { name: 'Cognitive\nRestraint', score: tfeq.CR,    category: tfeq.CR > 55     ? 'high' : tfeq.CR > 35     ? 'mid' : 'low' },
     { name: 'Emotional\nEating',    score: tfeq.EE,    category: tfeq.EE > 45     ? 'high' : tfeq.EE > 25     ? 'mid' : 'low' },
@@ -1619,7 +1627,7 @@ function ResultsScreen({ tfeq, red, phenotypeKey, satisfaction, onRetake, onBack
       }}>
         <Logo onClick={onBackToSite} />
         <div style={{ display: 'flex', gap: 8 }}>
-          <Button variant="outline" onClick={() => window.print()}>Download PDF</Button>
+          {isUnlocked && <Button variant="outline" onClick={() => window.print()}>Download PDF</Button>}
           <Button variant="ghost" onClick={onRetake}>Retake</Button>
         </div>
       </header>
@@ -1627,7 +1635,7 @@ function ResultsScreen({ tfeq, red, phenotypeKey, satisfaction, onRetake, onBack
       <div style={{ maxWidth: 920, margin: '0 auto', padding: '64px 28px 120px' }}>
         <StartingPointCallout satisfaction={satisfaction} />
 
-        {/* HERO */}
+        {/* HERO — always shown */}
         <div className="print-avoid-break" style={{ marginBottom: 64 }}>
           <div style={{ fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: COLORS.terracotta, marginBottom: 20 }}>
             Your eating phenotype
@@ -1643,132 +1651,195 @@ function ResultsScreen({ tfeq, red, phenotypeKey, satisfaction, onRetake, onBack
           </p>
         </div>
 
-        {/* SCORE CARD */}
-        <div className="print-avoid-break" style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, padding: '40px 40px 32px', marginBottom: 48 }}>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 8 }}>
-            Your subscale scores
-          </div>
-          <div style={{ fontFamily: FONT_SERIF, fontSize: 24, marginBottom: 28, fontWeight: 400 }}>
-            Where you fall on each dimension
-          </div>
-          <div style={{ height: 320 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={scoreData} margin={{ top: 20, right: 20, left: 0, bottom: 50 }}>
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={<TwoLineTick />} interval={0} height={50} />
-                <YAxis domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: COLORS.muted, fontFamily: 'IBM Plex Mono' }} ticks={[0, 25, 50, 75, 100]} />
-                <ReferenceLine y={50} stroke={COLORS.borderDark} strokeDasharray="2 4" />
-                <Bar dataKey="score" radius={[2, 2, 0, 0]}>
-                  {scoreData.map((entry, idx) => <Cell key={idx} fill={categoryColor(entry.category)} />)}
-                  <LabelList dataKey="score" position="top" formatter={(v) => Math.round(v)} style={{ fontFamily: 'IBM Plex Mono', fontSize: 11, fill: COLORS.text }} />
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          <div style={{
-            display: 'flex', gap: 20, marginTop: 24, paddingTop: 20, borderTop: `1px solid ${COLORS.border}`,
-            fontFamily: FONT_MONO, fontSize: 12, color: COLORS.muted, letterSpacing: '0.05em',
-          }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, background: COLORS.sage, borderRadius: 2 }} /> Low</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, background: COLORS.amber, borderRadius: 2 }} /> Moderate</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, background: COLORS.terracotta, borderRadius: 2 }} /> Elevated</span>
-            <span style={{ marginLeft: 'auto', textTransform: 'none', fontFamily: FONT_SANS }}>Scores on 0–100 scale. Dashed line = population median.</span>
-          </div>
-        </div>
+        {/* PAYWALL CTA — only shown when not unlocked */}
+        {!isUnlocked && <PaywallCTA phenotype={pheno} />}
 
-        {/* GLP-1 IMPLICATIONS */}
-        <div className="print-avoid-break" style={{ marginBottom: 48 }}>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: COLORS.terracotta, marginBottom: 16 }}>
-            For your GLP-1 journey
-          </div>
-          <h2 style={{ fontFamily: FONT_SERIF, fontSize: 40, lineHeight: 1.1, margin: '0 0 32px', fontWeight: 400 }}>
-            What this means while you’re on the drug.
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            {pheno.glp1.map((text, i) => (
-              <div key={i} style={{ display: 'flex', gap: 20, padding: '20px 24px', background: COLORS.card, border: `1px solid ${COLORS.border}` }}>
-                <div style={{ fontFamily: FONT_SERIF, fontSize: 28, color: COLORS.terracotta, lineHeight: 1, fontStyle: 'italic', minWidth: 32 }}>
-                  {String(i + 1).padStart(2, '0')}
-                </div>
-                <div style={{ fontSize: 16, lineHeight: 1.6, color: COLORS.text }}>{text}</div>
+        {/* GATED CONTENT — only shown when unlocked */}
+        {isUnlocked && (
+          <>
+            {/* SCORE CARD */}
+            <div className="print-avoid-break" style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, padding: '40px 40px 32px', marginBottom: 48 }}>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 8 }}>
+                Your subscale scores
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* FOCUS AREAS */}
-        <div className="print-avoid-break" style={{ marginBottom: 48, background: COLORS.forest, color: COLORS.cream, padding: '48px 40px' }}>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: COLORS.sage, marginBottom: 16 }}>
-            Where to focus
-          </div>
-          <h2 style={{ fontFamily: FONT_SERIF, fontSize: 32, lineHeight: 1.2, margin: '0 0 28px', fontWeight: 400 }}>
-            Three areas matched to your phenotype.
-          </h2>
-          <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
-            {pheno.focus.map((f, i) => (
-              <div key={i} style={{ borderTop: `1px solid ${COLORS.sage}`, paddingTop: 16 }}>
-                <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: COLORS.sage, letterSpacing: '0.15em', marginBottom: 8 }}>
-                  {String(i + 1).padStart(2, '0')}
-                </div>
-                <div style={{ fontFamily: FONT_SERIF, fontSize: 22, lineHeight: 1.2 }}>{f}</div>
+              <div style={{ fontFamily: FONT_SERIF, fontSize: 24, marginBottom: 28, fontWeight: 400 }}>
+                Where you fall on each dimension
               </div>
-            ))}
-          </div>
-        </div>
+              <div style={{ height: 320 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={scoreData} margin={{ top: 20, right: 20, left: 0, bottom: 50 }}>
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={<TwoLineTick />} interval={0} height={50} />
+                    <YAxis domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: COLORS.muted, fontFamily: 'IBM Plex Mono' }} ticks={[0, 25, 50, 75, 100]} />
+                    <ReferenceLine y={50} stroke={COLORS.borderDark} strokeDasharray="2 4" />
+                    <Bar dataKey="score" radius={[2, 2, 0, 0]}>
+                      {scoreData.map((entry, idx) => <Cell key={idx} fill={categoryColor(entry.category)} />)}
+                      <LabelList dataKey="score" position="top" formatter={(v) => Math.round(v)} style={{ fontFamily: 'IBM Plex Mono', fontSize: 11, fill: COLORS.text }} />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              <div style={{
+                display: 'flex', gap: 20, marginTop: 24, paddingTop: 20, borderTop: `1px solid ${COLORS.border}`,
+                fontFamily: FONT_MONO, fontSize: 12, color: COLORS.muted, letterSpacing: '0.05em',
+              }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, background: COLORS.sage, borderRadius: 2 }} /> Low</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, background: COLORS.amber, borderRadius: 2 }} /> Moderate</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 10, height: 10, background: COLORS.terracotta, borderRadius: 2 }} /> Elevated</span>
+                <span style={{ marginLeft: 'auto', textTransform: 'none', fontFamily: FONT_SANS }}>Scores on 0–100 scale. Dashed line = population median.</span>
+              </div>
+            </div>
 
-        {/* CONSULTATION CTA */}
-        <ConsultationCTA phenotype={pheno} />
-
-        {/* DETAILED SCORES */}
-        <div className="print-avoid-break" style={{ marginBottom: 48 }}>
-          <div style={{ fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 16 }}>
-            The numbers
-          </div>
-          <h2 style={{ fontFamily: FONT_SERIF, fontSize: 32, lineHeight: 1.1, margin: '0 0 32px', fontWeight: 400 }}>
-            Your full score profile.
-          </h2>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ borderBottom: `1px solid ${COLORS.borderDark}` }}>
-                {['Instrument', 'Subscale', 'Your score', 'Reference'].map((h, i) => (
-                  <th key={i} style={{
-                    textAlign: i >= 2 ? 'right' : 'left', padding: '12px 0',
-                    fontFamily: FONT_MONO, fontSize: 11, color: COLORS.muted,
-                    textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 400,
-                  }}>{h}</th>
+            {/* GLP-1 IMPLICATIONS */}
+            <div className="print-avoid-break" style={{ marginBottom: 48 }}>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: COLORS.terracotta, marginBottom: 16 }}>
+                For your GLP-1 journey
+              </div>
+              <h2 style={{ fontFamily: FONT_SERIF, fontSize: 40, lineHeight: 1.1, margin: '0 0 32px', fontWeight: 400 }}>
+                What this means while you’re on the drug.
+              </h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                {pheno.glp1.map((text, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 20, padding: '20px 24px', background: COLORS.card, border: `1px solid ${COLORS.border}` }}>
+                    <div style={{ fontFamily: FONT_SERIF, fontSize: 28, color: COLORS.terracotta, lineHeight: 1, fontStyle: 'italic', minWidth: 32 }}>
+                      {String(i + 1).padStart(2, '0')}
+                    </div>
+                    <div style={{ fontSize: 16, lineHeight: 1.6, color: COLORS.text }}>{text}</div>
+                  </div>
                 ))}
-              </tr>
-            </thead>
-            <tbody style={{ fontFamily: FONT_SANS }}>
-              {[
-                ['TFEQ-R21', 'Cognitive Restraint', tfeq.CR.toFixed(1), '45 (pop.)'],
-                ['TFEQ-R21', 'Uncontrolled Eating', tfeq.UE.toFixed(1), '40 (pop.)'],
-                ['TFEQ-R21', 'Emotional Eating',    tfeq.EE.toFixed(1), '35 (pop.)'],
-                ['RED-13',   'Loss of Control',     red.LOC.toFixed(2),  '~2.5'],
-                ['RED-13',   'Lack of Satiety',     red.LOS.toFixed(2),  '~2.3'],
-                ['RED-13',   'Preoccupation',       red.PWF.toFixed(2),  '~2.4'],
-                ['RED-13',   'Aggregate',           red.AGG.toFixed(2), '~2.4'],
-              ].map((row, i) => (
-                <tr key={i} style={{ borderBottom: `1px solid ${COLORS.border}` }}>
-                  <td style={{ padding: '14px 0', fontSize: 14, color: COLORS.muted, fontFamily: FONT_MONO }}>{row[0]}</td>
-                  <td style={{ padding: '14px 0', fontSize: 15 }}>{row[1]}</td>
-                  <td style={{ padding: '14px 0', fontSize: 15, textAlign: 'right', fontFamily: FONT_MONO }}>{row[2]}</td>
-                  <td style={{ padding: '14px 0', fontSize: 13, textAlign: 'right', color: COLORS.muted, fontFamily: FONT_MONO }}>{row[3]}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </div>
+            </div>
 
-        {/* FOOTER NOTE */}
-        <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 32, fontSize: 13, color: COLORS.muted, lineHeight: 1.65, maxWidth: 640 }}>
-          <p style={{ margin: '0 0 12px' }}>
-            This assessment is based on the Three-Factor Eating Questionnaire–R21 (Karlsson et al., 2000; de Lauzon et al., 2004) and the Reward-based Eating Drive scale, 13-item version (Mason et al., 2017; Vainik et al., 2019). Both are validated self-report measures of eating behavior.
-          </p>
-          <p style={{ margin: 0 }}>
-            Scores reflect a snapshot of your eating tendencies, not a clinical diagnosis. Consider retaking the assessment at 3 and 6 months into your GLP-1 treatment, and again if you taper or discontinue, to see how your profile shifts.
-          </p>
+            {/* FOCUS AREAS */}
+            <div className="print-avoid-break" style={{ marginBottom: 48, background: COLORS.forest, color: COLORS.cream, padding: '48px 40px' }}>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: COLORS.sage, marginBottom: 16 }}>
+                Where to focus
+              </div>
+              <h2 style={{ fontFamily: FONT_SERIF, fontSize: 32, lineHeight: 1.2, margin: '0 0 28px', fontWeight: 400 }}>
+                Three areas matched to your phenotype.
+              </h2>
+              <div className="grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+                {pheno.focus.map((f, i) => (
+                  <div key={i} style={{ borderTop: `1px solid ${COLORS.sage}`, paddingTop: 16 }}>
+                    <div style={{ fontFamily: FONT_MONO, fontSize: 10, color: COLORS.sage, letterSpacing: '0.15em', marginBottom: 8 }}>
+                      {String(i + 1).padStart(2, '0')}
+                    </div>
+                    <div style={{ fontFamily: FONT_SERIF, fontSize: 22, lineHeight: 1.2 }}>{f}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* CONSULTATION CTA */}
+            <ConsultationCTA phenotype={pheno} />
+
+            {/* DETAILED SCORES */}
+            <div className="print-avoid-break" style={{ marginBottom: 48 }}>
+              <div style={{ fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: COLORS.muted, marginBottom: 16 }}>
+                The numbers
+              </div>
+              <h2 style={{ fontFamily: FONT_SERIF, fontSize: 32, lineHeight: 1.1, margin: '0 0 32px', fontWeight: 400 }}>
+                Your full score profile.
+              </h2>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: `1px solid ${COLORS.borderDark}` }}>
+                    {['Instrument', 'Subscale', 'Your score', 'Reference'].map((h, i) => (
+                      <th key={i} style={{
+                        textAlign: i >= 2 ? 'right' : 'left', padding: '12px 0',
+                        fontFamily: FONT_MONO, fontSize: 11, color: COLORS.muted,
+                        textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 400,
+                      }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody style={{ fontFamily: FONT_SANS }}>
+                  {[
+                    ['TFEQ-R21', 'Cognitive Restraint', tfeq.CR.toFixed(1), '45 (pop.)'],
+                    ['TFEQ-R21', 'Uncontrolled Eating', tfeq.UE.toFixed(1), '40 (pop.)'],
+                    ['TFEQ-R21', 'Emotional Eating',    tfeq.EE.toFixed(1), '35 (pop.)'],
+                    ['RED-13',   'Loss of Control',     red.LOC.toFixed(2),  '~2.5'],
+                    ['RED-13',   'Lack of Satiety',     red.LOS.toFixed(2),  '~2.3'],
+                    ['RED-13',   'Preoccupation',       red.PWF.toFixed(2),  '~2.4'],
+                    ['RED-13',   'Aggregate',           red.AGG.toFixed(2), '~2.4'],
+                  ].map((row, i) => (
+                    <tr key={i} style={{ borderBottom: `1px solid ${COLORS.border}` }}>
+                      <td style={{ padding: '14px 0', fontSize: 14, color: COLORS.muted, fontFamily: FONT_MONO }}>{row[0]}</td>
+                      <td style={{ padding: '14px 0', fontSize: 15 }}>{row[1]}</td>
+                      <td style={{ padding: '14px 0', fontSize: 15, textAlign: 'right', fontFamily: FONT_MONO }}>{row[2]}</td>
+                      <td style={{ padding: '14px 0', fontSize: 13, textAlign: 'right', color: COLORS.muted, fontFamily: FONT_MONO }}>{row[3]}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* FOOTER NOTE */}
+            <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 32, fontSize: 13, color: COLORS.muted, lineHeight: 1.65, maxWidth: 640 }}>
+              <p style={{ margin: '0 0 12px' }}>
+                This assessment is based on the Three-Factor Eating Questionnaire–R21 (Karlsson et al., 2000; de Lauzon et al., 2004) and the Reward-based Eating Drive scale, 13-item version (Mason et al., 2017; Vainik et al., 2019). Both are validated self-report measures of eating behavior.
+              </p>
+              <p style={{ margin: 0 }}>
+                Scores reflect a snapshot of your eating tendencies, not a clinical diagnosis. Consider retaking the assessment at 3 and 6 months into your GLP-1 treatment, and again if you taper or discontinue, to see how your profile shifts.
+              </p>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function PaywallCTA({ phenotype }) {
+  return (
+    <div style={{
+      marginBottom: 48,
+      background: COLORS.card,
+      border: `1px solid ${COLORS.borderDark}`,
+      borderLeft: `4px solid ${COLORS.terracotta}`,
+      padding: '48px 40px',
+    }}>
+      <div style={{
+        fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.2em',
+        textTransform: 'uppercase', color: COLORS.terracotta, marginBottom: 16, fontWeight: 500,
+      }}>
+        Your full strategy report
+      </div>
+      <h2 style={{
+        fontFamily: FONT_SERIF, fontSize: 36, lineHeight: 1.15, margin: '0 0 16px', fontWeight: 400,
+      }}>
+        Get a strategy designed around your phenotype.
+      </h2>
+      <p style={{ fontSize: 16, lineHeight: 1.65, color: COLORS.text, margin: '0 0 12px', maxWidth: 640 }}>
+        Knowing you’re a {phenotype.name} is the start. The full report goes deeper — your detailed score profile, what each pattern means while you’re on a GLP-1, and a customized behavioral strategy designed around your specific phenotype and your current context (medication, duration, plateau status, your biggest frustration).
+      </p>
+      <p style={{ fontSize: 16, lineHeight: 1.65, color: COLORS.text, margin: '0 0 28px', maxWidth: 640 }}>
+        Written by an eating-behavior researcher, grounded in published science, tailored to where you are on your journey.
+      </p>
+
+      <ul style={{ paddingLeft: 18, color: COLORS.text, fontSize: 15, lineHeight: 1.85, margin: '0 0 32px' }}>
+        <li>Your full score chart across all four eating-behavior dimensions</li>
+        <li>What your phenotype means specifically while you’re on a GLP-1</li>
+        <li>Three focus areas to work on, matched to your patterns</li>
+        <li>A customized behavioral strategy based on your context and frustrations</li>
+        <li>The full numerical score table, with reference points</li>
+      </ul>
+
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 24 }}>
+        <div style={{ fontFamily: FONT_SERIF, fontSize: 48, color: COLORS.forest, lineHeight: 1, fontWeight: 400 }}>
+          $19.99
+        </div>
+        <div style={{ fontFamily: FONT_MONO, fontSize: 11, color: COLORS.muted, letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+          one-time, instant access
         </div>
       </div>
+
+      <Button variant="primary" onClick={() => alert('Payments coming soon. Email margie@appetiteatlas.health if you would like early access.')}>
+        Unlock full report
+      </Button>
+
+      <p style={{ fontSize: 13, color: COLORS.muted, lineHeight: 1.5, margin: '24px 0 0', fontStyle: 'italic' }}>
+        Educational; not medical advice. Not a substitute for guidance from your prescriber or a licensed clinician.
+      </p>
     </div>
   );
 }
