@@ -406,19 +406,18 @@ function GlobalStyles() {
 // 5. SHARED COMPONENTS
 // =============================================================================
 
-function Logo({ size = 22, onClick }) {
+function Logo({ size = 48, onClick }) {
   // Michael's logo is a horizontal lockup with the symbol, "Appetite Atlas™",
   // and the tagline ("Know your appetite. Navigate your journey.") all baked
-  // into the image. The image's cream background matches the site's cream,
-  // so it sits in headers without a visible edge.
-  // The image's native aspect ratio is roughly 2.5:1 (width:height).
-  const imgHeight = size * 2.4;
+  // into the image. Image native aspect ratio is roughly 2.5:1 (width:height).
+  // The `size` prop is the rendered HEIGHT in pixels — for nav use 48-56,
+  // for footer use 40-48, for hero use 80+.
   return (
     <div onClick={onClick} style={{ display: 'inline-flex', alignItems: 'center', cursor: onClick ? 'pointer' : 'default' }}>
       <img
         src={logoImage}
         alt={`${BRAND_NAME} — eating-behavior assessment for GLP-1 patients`}
-        style={{ height: imgHeight, width: 'auto', display: 'block' }}
+        style={{ height: size, width: 'auto', display: 'block' }}
       />
     </div>
   );
@@ -959,7 +958,7 @@ function Footer() {
         display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, alignItems: 'end',
       }}>
         <div>
-          <Logo size={20} />
+          <Logo size={42} />
           <div style={{ fontSize: 13, color: COLORS.muted, lineHeight: 1.6, maxWidth: '40ch', marginTop: 12 }}>
             An eating-behavior assessment for GLP-1 patients. Educational; not a substitute for medical advice or treatment.
           </div>
