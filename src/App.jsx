@@ -1694,12 +1694,22 @@ function QuestionnaireScreen({ items, options, answers, setAnswers, idx, setIdx,
 }
 
 function DemographicsScreen({ answers, setAnswers, onNext, onBack, onLogoClick }) {
-  const canContinue = answers.age && answers.sex && answers.height && answers.weight;
+  const canContinue = answers.age && answers.sex && answers.heightFeet && answers.weight;
   const inputStyle = {
     width: '100%', padding: '14px 16px', fontSize: 16,
     border: `1px solid ${COLORS.borderDark}`, background: COLORS.card,
     fontFamily: FONT_SANS, borderRadius: 2, color: COLORS.text, outline: 'none',
   };
+
+  // Update height in feet/inches and also keep a derived total-inches value
+  // so anything downstream (BMI, scoring, future analytics) gets a single number.
+  const updateHeight = (feet, inches) => {
+    const ft = feet === '' ? '' : Number(feet);
+    const inc = inches === '' ? 0 : Number(inches);
+    const total = ft === '' ? '' : ft * 12 + inc;
+    setAnswers({ ...answers, heightFeet: feet, heightInches: inches, height: total });
+  };
+
   return (
     <AssessmentShell progress={92} onLogoClick={onLogoClick}>
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '56px 28px 120px' }}>
@@ -1737,19 +1747,52 @@ function DemographicsScreen({ answers, setAnswers, onNext, onBack, onLogoClick }
               ))}
             </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <div>
-              <label style={{ fontSize: 13, color: COLORS.muted, display: 'block', marginBottom: 8 }}>Height (inches)</label>
-              <input type="number" value={answers.height || ''} onChange={e => setAnswers({ ...answers, height: e.target.value })} style={inputStyle} placeholder="e.g. 66" />
+          <div>
+            <label style={{ fontSize: 13, color: COLORS.muted, display: 'block', marginBottom: 8 }}>Height</label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="number"
+                  min="3"
+                  max="8"
+                  value={answers.heightFeet || ''}
+                  onChange={e => updateHeight(e.target.value, answers.heightInches || '')}
+                  style={{ ...inputStyle, paddingRight: 56 }}
+                  placeholder="5"
+                  aria-label="Feet"
+                />
+                <span style={{
+                  position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
+                  fontSize: 14, color: COLORS.muted, fontFamily: FONT_SANS, pointerEvents: 'none',
+                }}>ft</span>
+              </div>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="number"
+                  min="0"
+                  max="11"
+                  value={answers.heightInches || ''}
+                  onChange={e => updateHeight(answers.heightFeet || '', e.target.value)}
+                  style={{ ...inputStyle, paddingRight: 56 }}
+                  placeholder="6"
+                  aria-label="Inches"
+                />
+                <span style={{
+                  position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
+                  fontSize: 14, color: COLORS.muted, fontFamily: FONT_SANS, pointerEvents: 'none',
+                }}>in</span>
+              </div>
             </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div>
               <label style={{ fontSize: 13, color: COLORS.muted, display: 'block', marginBottom: 8 }}>Current weight (lbs)</label>
               <input type="number" value={answers.weight || ''} onChange={e => setAnswers({ ...answers, weight: e.target.value })} style={inputStyle} placeholder="e.g. 180" />
             </div>
-          </div>
-          <div>
-            <label style={{ fontSize: 13, color: COLORS.muted, display: 'block', marginBottom: 8 }}>Highest adult weight (lbs, optional)</label>
-            <input type="number" value={answers.highestWeight || ''} onChange={e => setAnswers({ ...answers, highestWeight: e.target.value })} style={inputStyle} placeholder="optional" />
+            <div>
+              <label style={{ fontSize: 13, color: COLORS.muted, display: 'block', marginBottom: 8 }}>Highest adult weight (lbs, optional)</label>
+              <input type="number" value={answers.highestWeight || ''} onChange={e => setAnswers({ ...answers, highestWeight: e.target.value })} style={inputStyle} placeholder="optional" />
+            </div>
           </div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 56 }}>
